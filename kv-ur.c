@@ -126,7 +126,6 @@ int solver(double* pt_a, double* pt_b, double* pt_c, double* pt_D) {
     assert(pt_c != NULL);
     assert(pt_D != NULL);
 
-
     double a = *pt_a;
     double b = *pt_b;
     double c = *pt_c;
