@@ -4,16 +4,17 @@
 #include <ctype.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <time.h>
 
 
 #define TRUE 1
 #define FALSE 0
 #define E 0.000001
-#define TESTS 10000000000
+#define TESTS 1000
 
 
 int abc_(char, double*); // чтение коэффициентов
-int input(double *, double *, double *); //обработка ввода
+void input(double *, double *, double *); //обработка ввода
 void discriminant(double , double , double, double*); // вычисление дискриминанта
 int Solvesq(double, double, double, double*, double*); // счет корней
 void output(int, double, double); // вывод корней
@@ -25,6 +26,7 @@ void RunTests(); //проверка
 
 int main(void)
 {
+    srand((unsigned)time(NULL));
     RunTests();
 
     double a = 0, b = 0, c = 0;
@@ -44,28 +46,53 @@ int abc_(char s, double* pt_s) {
 
     assert(pt_s != NULL);
 
-    printf("\nВведите коэффициент %c:\n", s);
+    /* printf("\nВведите коэффициент %c:\n", s);
+
     if (scanf("%lf", pt_s) && getchar() == '\n');
+            return TRUE;
     else {
         clear_buffer();
         printf("Ошибка ввода, заново введите коэффициенты\n");
         return FALSE;
+    } */
+    printf("Введите коэффициент %c:\n", s);
+    char ch = 0;
+    while (TRUE) {
+
+    int k = scanf("%lf", pt_s);
+        if (k == 1) {
+            while (isspace(ch = getchar())) {
+                if (ch == '\n')
+                    return TRUE;
+            }
+                clear_buffer();
+                printf("Ошибка ввода, заново введите коэффициент %c\n", s);
+                continue;
+        }
+        clear_buffer();
+            printf("Ошибка ввода, заново введите коэффициент %c\n", s);
+            continue;
     }
-    return TRUE;
+
 }
 
-int input(double * a, double * b, double * c) {
+void input(double * a, double * b, double * c) {
     assert(a != NULL);
     assert(b != NULL);
     assert(c != NULL);
 
     printf("Введите коэффициенты квадратного уравнения\n");
 
-    while (!abc_('a', a)) ;
+    /*while (!abc_('a', a)) ;
     while (!abc_('b', b)) ;
     while (!abc_('c', c)) ;
 
     return TRUE;
+    */
+    abc_('a', a);
+    abc_('b', b);
+    abc_('c', c);
+
 }
 
 void discriminant(double a, double b, double c, double* pt_D) {
@@ -219,7 +246,7 @@ void RunTests() {
     int passed = 0;
     int total = 0;
 
-    printf("        ТЕСТЫ\n");
+    printf("     ТЕСТЫ\n");
 
     nroots = Solvesq(1, -3, 2, &x1, &x2);
     total++;
@@ -263,9 +290,9 @@ void RunTests() {
 
 
     for (int i = 0; i < TESTS; i++) {
-        a = rand() % 100 - 9;
-        b = rand() % 100 - 9;
-        c = rand() % 100 - 9;
+        a = rand() % 10000 - 10000;
+        b = rand() % 10000 - 10000;
+        c = rand() % 10000 - 10000;
 
         nroots = Solvesq(a, b, c, &x1, &x2);
         int flag = 1;
