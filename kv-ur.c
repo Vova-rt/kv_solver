@@ -167,19 +167,19 @@ int continuE(void) {
     while (true) {
 
 
-        char ch, ch1;
-        int k = scanf("%c%c", &ch, &ch1);
+        char ch = 0;
+        scanf("%c", &ch);
 
+        if (ch == '0' && getchar() == '\n')
+            return FALSE;
+        if (ch == '1' && getchar() == '\n')
+            return TRUE;
 
-        if (k == 2 && ch1=='\n') {
-            if (ch == '1')
-                return TRUE;
-             if (ch == '0')
-                return FALSE;
-        }
-        printf("Ошибка ввода, введите 0 или 1\n");
         clear_buffer();
+        printf("Ошибка ввода, введите 0 или 1\n");
         continue;
+
+
 
 
     }
@@ -200,6 +200,7 @@ void clear_buffer(void) {
 
     while (getchar() != '\n')
         ;
+
 }
 
 
