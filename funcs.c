@@ -1,14 +1,43 @@
 int abc_(char s, double* pt_s) {
+
     assert(pt_s != NULL);
 
     printf("\nВведите коэффициент %c:\n", s);
-    if (scanf("%lf", pt_s) && getchar() == '\n');
+
+    /*if (scanf("%lf", pt_s) && getchar() == '\n');
     else {
         clear_buffer();
         printf("Ошибка ввода, заново введите коэффициенты\n");
         return FALSE;
     }
-    return TRUE;
+    return TRUE; */
+    int flag = 0;
+    char ch = -1;
+    while (TRUE) {
+        if (scanf("%lg", pt_s)) {
+                while((ch = getchar()) != '\n') {
+                    if (isspace(ch))
+                    continue;
+
+                    else {
+                        clear_buffer();
+                        printf("Ошибка ввода, введите 0 или 1\n");
+                        flag++;
+                        break;
+                    }
+                }
+                if (flag == 0)
+                    return TRUE;
+                else
+                    continue;
+        }
+        else {
+        clear_buffer();
+        printf("Ошибка ввода, заново введите коэффициенты\n");
+        return FALSE;
+        }
+
+    }
 }
 
 int input(double * a, double * b, double * c) {
