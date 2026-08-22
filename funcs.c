@@ -3,42 +3,44 @@ int abc_(char s, double* pt_s) {
     assert(pt_s != NULL);
 
     printf("\nВведите коэффициент %c:\n", s);
-
-    /*if (scanf("%lf", pt_s) && getchar() == '\n');
+    if (scanf("%lf", pt_s) && getchar() == '\n');
     else {
         clear_buffer();
         printf("Ошибка ввода, заново введите коэффициенты\n");
         return FALSE;
     }
-    return TRUE; */
-    int flag = 0;
+    return TRUE;
+}
+    /*int flag = 0;
     char ch = -1;
     while (TRUE) {
-        if (scanf("%lg", pt_s)) {
+        printf("\nВведите коэффициент %c:\n", s);
+        if (scanf("%lg", pt_s) == 1) {
                 while((ch = getchar()) != '\n') {
                     if (isspace(ch))
                     continue;
 
                     else {
                         clear_buffer();
-                        printf("Ошибка ввода, введите 0 или 1\n");
+                        printf("Ошибка ввода, введите заново коэффициент\n");
+                        clear_buffer();
                         flag++;
                         break;
                     }
                 }
                 if (flag == 0)
                     return TRUE;
+
                 else
                     continue;
         }
         else {
         clear_buffer();
         printf("Ошибка ввода, заново введите коэффициенты\n");
-        return FALSE;
+        continue;
         }
+    } */
 
-    }
-}
 
 int input(double * a, double * b, double * c) {
     assert(a != NULL);
@@ -100,11 +102,11 @@ int continuE(void) {
 
     while (true) {
 
-        char ch = -1;
-        scanf("%c", &ch);
+        int ch = -1;
+        scanf("%d", &ch);
         int flag = 0;
 
-        if (ch == '0') {
+        if (ch == 0) {
             while((ch = getchar()) != '\n') {
                 if (isspace(ch))
                 continue;
@@ -122,7 +124,7 @@ int continuE(void) {
                 continue;
         }
 
-        if (ch == '1') {
+        if (ch == 1) {
             while((ch = getchar()) != '\n') {
                 if (isspace(ch))
                 continue;
@@ -136,6 +138,7 @@ int continuE(void) {
             }
             if (flag == 0)
                 return TRUE;
+
             else
                 continue;
         }
@@ -161,4 +164,3 @@ void clear_buffer(void) {
     while (getchar() != '\n')
         ;
 }
-
