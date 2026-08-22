@@ -3,12 +3,9 @@
 
 int main(void)
 {
-
-
     double a = 0, b = 0, c = 0;
     double D = 0;
     int flag = 0;
-
 
     while (true) {
         flag = input(&a, &b, &c);
@@ -18,8 +15,8 @@ int main(void)
         }
 
         else if (flag == TRUE) {
-            discriminant(&a, &b, &c, &D);
-            solver(&a, &b, &c, &D);
+            discriminant(a, b, c, &D);
+            solver(a, b, c, D);
 
             int j = continuE();
             if (j == TRUE)
