@@ -19,8 +19,10 @@ bool is_zero(double*); //является ли число нулем
 void clear_buffer(void); //очистка мусорной части ввода
 
 
+
 int main(void)
 {
+
 
     double a = 0, b = 0, c = 0;
     double D = 0;
