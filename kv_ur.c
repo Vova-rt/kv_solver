@@ -29,16 +29,17 @@ int continuE(void); //хочет ли пользователь продолжить
 bool is_zero(double); //является ли число нулем
 void clear_buffer(void); //очистка мусорной части ввода
 int is_root(double, double, double, double); //является ли х корнем
-int RunOneTest(struct Test_Case); // ручные тесты
+int RunOneTest(struct Test_Case, int*, int*); // ручные тесты
 void RunTests(); // запуск тестов
 int exit_before_start(); // проверяет хочет ли пользователь завершить программу в самом начале ввода
-
+void print_struct(struct Test_Case); // печать содержимого структуры
+void RandomTest();
 
 int main(void)
 {
     srand((unsigned)time(NULL));
     RunTests();
-
+    RandomTest();
     double a = 0, b = 0, c = 0;
     double x1 = 0, x2 = 0;
     int nroots = 0;
@@ -57,8 +58,9 @@ int exit_before_start() {
 
     printf("Хотите завершить программу?\n"
     "Если да - введите q, если нет - что угодно\n");
-    char ch = '\0';
 
+
+    char ch = '\0';
     if (ch = getchar() == 'q') {
         printf("Программа завершена");
         return FALSE;
@@ -270,24 +272,82 @@ int is_root(double a, double b, double c, double x) {
 
 }
 
-int RunOneTest(struct Test_Case test, int num) {
+
+void print_struct(struct Test_Case test) {
+
+    printf("%lg, %lg, %lg, %d, %lg, %lg\n", test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref);
+}
+
+
+int RunOneTest(struct Test_Case test, int num, int* passed, int* total) {
 
     double x1 = 0, x2 = 0;
     int nroots = Solvesq(test.a, test.b, test.c, &x1, &x2);
+    if (!isnan(x1) && !isnan(x2)) {
+        if (nroots == test.nrootsRef && is_root(test.a, test.b, test.c, x1) && is_root(test.a, test.b, test.c, x2) && fabs(x1-x2) > E) {
+            printf("\n\nТест %d пройден\n", num);
+            (*total)++;
+            (*passed)++;
+        /* if (nroots == test.nrootsRef && is_root(1, -3, 2, x1) && is_root(1, -3, 2, x2) && fabs(x1-x2) > E) {
+            printf("\n\nТест %d пройден\n", num);
+            (*total)++;
+            (*passed)++;
 
-    if (nroots == test.nrootsRef && is_root(1, -3, 2, x1) && is_root(1, -3, 2, x2) && fabs(x1-x2) > E) {
-        printf("\n\nТест %d пройден\n", num);
+        if (nroots == test.nrootsRef && x1 == test.x1ref && x2 == test.x2ref) {
+            printf("\nТест %d пройден\n", num); */
 
-    /* if (nroots == test.nrootsRef && x1 == test.x1ref && x2 == test.x2ref) {
-        printf("\nТест %d пройден\n", num); */
-
+        }
+        else {
+            printf("\n\nТест %d FAILED\na = %lg, b = %lg, c = %lg\n"
+            "Expected: %d roots, x1ref = %lg, x2ref = %lg\n"
+            "got:      %d roots, x1    = %lg, x2    = %lg\n",
+            num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
+            (*total)++;
+        }
+    }
+    else if (isnan(x1) && !isnan(x2)) {
+        if (nroots == test.nrootsRef && is_root(test.a, test.b, test.c, x2)) {
+            printf("\n\nТест %d пройден\n", num);
+            (*total)++;
+            (*passed)++;
+        }
+        else {
+            printf("\n\nТест %d FAILED\na = %lg, b = %lg, c = %lg\n"
+            "Expected: %d roots, x1ref = %lg, x2ref = %lg\n"
+            "got:      %d roots, x1    = %lg, x2    = %lg\n",
+            num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
+            (*total)++;
+        }
+    }
+    else if (isnan(x2) && !isnan(x1)) {
+        if (nroots == test.nrootsRef && is_root(test.a, test.b, test.c, x1)) {
+            printf("\n\nТест %d пройден\n", num);
+            (*total)++;
+            (*passed)++;
+        }
+        else {
+            printf("\n\nТест %d FAILED\na = %lg, b = %lg, c = %lg\n"
+            "Expected: %d roots, x1ref = %lg, x2ref = %lg\n"
+            "got:      %d roots, x1    = %lg, x2    = %lg\n",
+            num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
+            (*total)++;
+        }
     }
     else {
-        printf("\n\nТест %d FAILED\na = %lg, b = %lg, c = %lg\n"
-        "Expected: %d roots, x1ref = %lg, x2ref = %lg\n"
-        "got:      %d roots, x1    = %lg, x2    = %lg\n",
-        num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
+        if (nroots == test.nrootsRef) {
+            printf("\n\nТест %d пройден\n", num);
+            (*total)++;
+            (*passed)++;
+        }
+        else {
+            printf("\n\nТест %d FAILED\na = %lg, b = %lg, c = %lg\n"
+            "Expected: %d roots, x1ref = %lg, x2ref = %lg\n"
+            "got:      %d roots, x1    = %lg, x2    = %lg\n",
+            num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
+            (*total)++;
+        }
     }
+
 }
 void RunTests() {
 
@@ -295,29 +355,37 @@ void RunTests() {
     printf("     ТЕСТЫ\n");
 
     struct Test_Case test1 = {.a = 1, .b = -3, .c = 2, .nrootsRef = 2, .x1ref = 2, .x2ref = 1};
-    RunOneTest(test1, 1);
+    RunOneTest(test1, 1, &passed, &total);
+    print_struct(test1);
 
     struct Test_Case test2 = {.a = 0, .b = 0, .c = 1, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN};
-    RunOneTest(test2, 2);
+    RunOneTest(test2, 2, &passed, &total);
+    print_struct(test2);
 
     struct Test_Case test3 = {.a = 0, .b = 0, .c = 2, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN};
-    RunOneTest(test3, 3);
+    RunOneTest(test3, 3, &passed, &total);
+     print_struct(test3);
 
     struct Test_Case test4 = {.a = 0, .b = 1, .c = 1, .nrootsRef = 1, .x1ref = -1, .x2ref = NAN};
-    RunOneTest(test4, 4);
+    RunOneTest(test4, 4, &passed, &total);
+    print_struct(test4);
+
+    struct Test_Case test5 = {.a = 0, .b = 0, .c = 0, .nrootsRef = -1, .x1ref = NAN, .x2ref = NAN};
+    RunOneTest(test5, 5, &passed, &total);
+    print_struct(test5);
 
 
     printf("\nПройдено %d из %d тестов\n", passed, total);
 }
 
 
-
-
-
-
-
-/*
 void RandomTest() {
+    int total = 0;
+    int passed = 0;
+    double a = 0, b = 0, c = 0;
+    int nroots = NAN;
+    double x1 = NAN, x2 = NAN;
+
     for (int i = 0; i < TESTS; i++) {
             a = rand() % 10000 - 10000;
             b = rand() % 10000 - 10000;
@@ -336,8 +404,10 @@ void RandomTest() {
 
             total++;
     }
+    printf("\n      РАНДОМ ТЕСТЫ\n");
+    printf("Пройдено %d из %d рандом тестов\n", passed, total);
 }
-*/
+
 
     /* nroots = Solvesq(1, -3, 2, &x1, &x2);
     total++;
