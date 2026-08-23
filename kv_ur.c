@@ -58,15 +58,32 @@ int exit_before_start() {
 
     printf("Хотите завершить программу?\n"
     "Если да - введите q, если нет - что угодно\n");
-
-
     char ch = '\0';
+
     if (ch = getchar() == 'q') {
         printf("Программа завершена");
         return FALSE;
     }
     clear_buffer();
     return TRUE;
+    /*printf("Хотите завершить программу?\n"
+    "Если да - введите q, если нет - что угодно\n");
+
+    char ch = '\0';
+    while (isspace(ch = getchar())) ;
+    ungetc(ch, stdin);
+        if (ch == 'q') {
+    while (isspace(ch = getchar()) && ch != '\n') ;
+        if (ch == '\n') {
+            printf("Программа завершена");
+            return FALSE;
+        }
+        }
+        else {
+            clear_buffer();
+            return TRUE;
+        }
+        */
 }
 
 int abc_(char s, double* pt_s) {
