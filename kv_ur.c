@@ -15,7 +15,7 @@
 
 struct Test_Case {
     double a, b, c;
-    int nrootsref;
+    int nrootsRef;
     double x1ref,  x2ref;
 };
 
@@ -29,8 +29,8 @@ int continuE(void); //хочет ли пользователь продолжить
 bool is_zero(double); //является ли число нулем
 void clear_buffer(void); //очистка мусорной части ввода
 int is_root(double, double, double, double); //является ли х корнем
-int RunOneTest(struct Test_Case); //
-void RunTests(); //проверка
+int RunOneTest(struct Test_Case); // ручные тесты
+void RunTests(); // запуск тестов
 int exit_before_start(); // проверяет хочет ли пользователь завершить программу в самом начале ввода
 
 
@@ -42,7 +42,7 @@ int main(void)
     double a = 0, b = 0, c = 0;
     double x1 = 0, x2 = 0;
     int nroots = 0;
-    if (!exit_before_start();)
+    if (exit_before_start() == FALSE)
         return 0;
     do {
         input(&a, &b, &c);
@@ -55,14 +55,15 @@ int main(void)
 
 int exit_before_start() {
 
-    printf("Хотите завершить программу?\n");
+    printf("Хотите завершить программу?\n"
+    "Если да - введите q, если нет - что угодно\n");
     char ch = '\0';
 
     if (ch = getchar() == 'q') {
         printf("Программа завершена");
         return FALSE;
     }
-    ungetc(ch, stdin);
+    clear_buffer();
     return TRUE;
 }
 
@@ -79,6 +80,7 @@ int abc_(char s, double* pt_s) {
         printf("Ошибка ввода, заново введите коэффициенты\n");
         return FALSE;
     } */
+
     printf("Введите коэффициент %c:\n", s);
     char ch = 0;
     while (TRUE) {
@@ -100,6 +102,7 @@ int abc_(char s, double* pt_s) {
 }
 
 int input(double * a, double * b, double * c) {
+
     assert(a != NULL);
     assert(b != NULL);
     assert(c != NULL);
@@ -107,12 +110,6 @@ int input(double * a, double * b, double * c) {
     printf("Введите коэффициенты квадратного уравнения\n");
 
 
-    /*while (!abc_('a', a)) ;
-    while (!abc_('b', b)) ;
-    while (!abc_('c', c)) ;
-
-    return TRUE;
-    */
     abc_('a', a);
     abc_('b', b);
     abc_('c', c);
@@ -278,14 +275,18 @@ int RunOneTest(struct Test_Case test, int num) {
     double x1 = 0, x2 = 0;
     int nroots = Solvesq(test.a, test.b, test.c, &x1, &x2);
 
-    if (nroots == test.nrootsref && is_root(1, -3, 2, x1) && is_root(1, -3, 2, x2) && fabs(x1-x2) > E) {
-        printf("\nТест %d пройден\n", num);
+    if (nroots == test.nrootsRef && is_root(1, -3, 2, x1) && is_root(1, -3, 2, x2) && fabs(x1-x2) > E) {
+        printf("\n\nТест %d пройден\n", num);
+
+    /* if (nroots == test.nrootsRef && x1 == test.x1ref && x2 == test.x2ref) {
+        printf("\nТест %d пройден\n", num); */
+
     }
     else {
-        printf("\nТест %d FAILED\na = %lg, b = %lg, c = %lg\n"
+        printf("\n\nТест %d FAILED\na = %lg, b = %lg, c = %lg\n"
         "Expected: %d roots, x1ref = %lg, x2ref = %lg\n"
         "got:      %d roots, x1    = %lg, x2    = %lg\n",
-        num, test.a, test.b, test.c, test.nrootsref, test.x1ref, test.x2ref, nroots, x1, x2);
+        num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
     }
 }
 void RunTests() {
@@ -293,16 +294,16 @@ void RunTests() {
     int passed = 0, total = 0;
     printf("     ТЕСТЫ\n");
 
-    struct Test_Case test1 = {.a = 1, .b = -3, .c = 2, .nrootsref = 2, .x1ref = 2, .x2ref = 1};
+    struct Test_Case test1 = {.a = 1, .b = -3, .c = 2, .nrootsRef = 2, .x1ref = 2, .x2ref = 1};
     RunOneTest(test1, 1);
 
-    struct Test_Case test2 = {.a = 0, .b = 0, .c = 1, .nrootsref = 0, .x1ref = NAN, .x2ref = NAN};
+    struct Test_Case test2 = {.a = 0, .b = 0, .c = 1, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN};
     RunOneTest(test2, 2);
 
-    struct Test_Case test3 = {.a = 0, .b = 0, .c = 2, .nrootsref = 0, .x1ref = NAN, .x2ref = NAN};
+    struct Test_Case test3 = {.a = 0, .b = 0, .c = 2, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN};
     RunOneTest(test3, 3);
 
-    struct Test_Case test4 = {.a = 0, .b = 1, .c = 1, .nrootsref = 1, .x1ref = -1, .x2ref = NAN};
+    struct Test_Case test4 = {.a = 0, .b = 1, .c = 1, .nrootsRef = 1, .x1ref = -1, .x2ref = NAN};
     RunOneTest(test4, 4);
 
 
