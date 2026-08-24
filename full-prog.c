@@ -12,7 +12,7 @@
 #define E 0.000001
 #define TESTS 1000
 
-struct kv_ {
+struct kv_eq {
     double a, b, c;
     double x1, x2;
     double D;
@@ -27,26 +27,31 @@ struct Test_Case {
 
 
 int abc_(char, double*); // чтение коэффициентов
-int input(struct kv_ *); //обработка ввода
-void discriminant(struct kv_ *); // вычисление дискриминанта
-void Solvesq(struct kv_ *); // счет корней
-void output(const struct kv_ *); // вывод корней
+int input(struct kv_eq *); //обработка ввода
+void discriminant(struct kv_eq *); // вычисление дискриминанта
+void Solvesq(struct kv_eq *); // счет корней
+void output(const struct kv_eq *); // вывод корней
 int continuE(void); //хочет ли пользователь продолжить
 bool is_zero(double); //является ли число нулем
 void clear_buffer(void); //очистка мусорной части ввода
-int is_root(const struct kv_ *, double); //является ли х корнем
-void RunOneTest(struct Test_Case, int, int*, int*); // ручные тесты
-void RunTests(); // запуск тестов
+int is_root(const struct kv_eq *, double); //является ли х корнем
+int RunOneTest(struct Test_Case, int, int*, int*); // ручные тесты
+int RunTests(); // запуск тестов
 int exit_before_start(); // проверяет хочет ли пользователь завершить программу в самом начале ввода
 void print_struct(struct Test_Case); // печать содержимого структуры
 void RandomTest();
+void what_test_failed(int);
 
 int main(void)
 {
-    struct kv_ kv = {};
+    struct kv_eq kv = {};
+
     srand((unsigned)time(NULL));
-    RunTests();
-    RandomTest();
+
+    if (!RunTests()) {
+        printf("Программа завершена");
+        return 0;
+    }
 
     if (exit_before_start() == FALSE)
         return 0;
@@ -126,13 +131,11 @@ int abc_(char s, double* pt_s) {
 
 }
 
-int input(struct kv_ *pt) {
+int input(struct kv_eq *pt) {
 
     assert(pt != NULL);
 
-
     printf("Введите коэффициенты квадратного уравнения\n");
-
 
     abc_('a', &pt->a);
     abc_('b', &pt->b);
@@ -141,7 +144,7 @@ int input(struct kv_ *pt) {
     return TRUE;
 }
 
-void discriminant(struct kv_ *pt) {
+void discriminant(struct kv_eq *pt) {
 
     assert(pt != NULL);
 
@@ -149,10 +152,9 @@ void discriminant(struct kv_ *pt) {
 
 }
 
-void Solvesq(struct kv_ *pt) {
+void Solvesq(struct kv_eq *pt) {
 
     assert(pt != NULL);
-
 
     discriminant(pt);
 
@@ -177,14 +179,16 @@ void Solvesq(struct kv_ *pt) {
     }
 
     else {
-        if (pt->D < 0) {
-            pt->x1 = pt->x2 = NAN;
-            pt->nroots = 0;
-        }
-        else if (is_zero(pt->D)) {
+
+        if (is_zero(pt->D)) {
             pt->x2 = NAN;
             pt->x1 = -pt->b / (2*pt->a);
             pt->nroots = 1;
+        }
+
+        else if (pt->D < 0) {
+            pt->x1 = pt->x2 = NAN;
+            pt->nroots = 0;
         }
 
         else {
@@ -196,7 +200,7 @@ void Solvesq(struct kv_ *pt) {
 
 }
 
-void output(const struct kv_ *pt) {
+void output(const struct kv_eq *pt) {
 
         switch(pt->nroots) {
             case -1:
@@ -289,7 +293,7 @@ void clear_buffer(void) {
         ;
 }
 
-int is_root(const struct kv_ *pt, double x) {
+int is_root(const struct kv_eq *pt, double x) {
 
     double result = pt->a*x*x + pt->b*x + pt->c;
     return (is_zero(result)) ? 1 : 0;
@@ -302,17 +306,20 @@ void print_struct(struct Test_Case test) {
 }
 
 
-void RunOneTest(struct Test_Case test, int num, int* passed, int* total) {
+int RunOneTest(struct Test_Case test, int num, int* passed, int* total) {
 
-    struct kv_ pt;
+    struct kv_eq pt;
     pt.a = test.a;
     pt.b = test.b;
     pt.c = test.c;
+
     Solvesq(&pt);
     int nroots = pt.nroots;
     double x1 = pt.x1;
     double x2 = pt.x2;
+
     if (!isnan(x1) && !isnan(x2)) {
+
         if (nroots == test.nrootsRef && is_root(&pt, x1) && is_root(&pt, x2) && fabs(x1-x2) > E) {
             printf("\n\nТест %d пройден\n", num);
             (*total)++;
@@ -325,9 +332,11 @@ void RunOneTest(struct Test_Case test, int num, int* passed, int* total) {
             "got:      %d roots, x1    = %lg, x2    = %lg\n",
             num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
             (*total)++;
+            return 0;
         }
     }
     else if (isnan(x1) && !isnan(x2)) {
+
         if (nroots == test.nrootsRef && is_root(&pt, x2)) {
             printf("\n\nТест %d пройден\n", num);
             (*total)++;
@@ -339,9 +348,11 @@ void RunOneTest(struct Test_Case test, int num, int* passed, int* total) {
             "got:      %d roots, x1    = %lg, x2    = %lg\n",
             num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
             (*total)++;
+            return 0;
         }
     }
     else if (isnan(x2) && !isnan(x1)) {
+
         if (nroots == test.nrootsRef && is_root(&pt, x1)) {
             printf("\n\nТест %d пройден\n", num);
             (*total)++;
@@ -353,9 +364,11 @@ void RunOneTest(struct Test_Case test, int num, int* passed, int* total) {
             "got:      %d roots, x1    = %lg, x2    = %lg\n",
             num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
             (*total)++;
+            return 0;
         }
     }
     else {
+
         if (nroots == test.nrootsRef) {
             printf("\n\nТест %d пройден\n", num);
             (*total)++;
@@ -367,47 +380,76 @@ void RunOneTest(struct Test_Case test, int num, int* passed, int* total) {
             "got:      %d roots, x1    = %lg, x2    = %lg\n",
             num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
             (*total)++;
+            return 0;
         }
     }
+    return 1;
+}
+
+void what_test_failed(int num) {
+
+    printf("\nTEST %d FAILED\n", num);
 
 }
-void RunTests() {
 
-    int passed = 0, total = 0;
+int RunTests() {
+
+    int passed = 0, total = 0, flag = 1, test_failed = 0;
     printf("     ТЕСТЫ\n");
 
     struct Test_Case test1 = {.a = 1, .b = -3, .c = 2, .nrootsRef = 2, .x1ref = 2, .x2ref = 1};
-    RunOneTest(test1, 1, &passed, &total);
-    print_struct(test1);
+    if (!RunOneTest(test1, 1, &passed, &total)) {
+        flag = 0;
+        test_failed = 1;
+    }
+    else print_struct(test1);
 
     struct Test_Case test2 = {.a = 0, .b = 0, .c = 1, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN};
-    RunOneTest(test2, 2, &passed, &total);
-    print_struct(test2);
+    if (!RunOneTest(test2, 2, &passed, &total)) {
+            flag = 0;
+            test_failed = 2;
+        }
+    else print_struct(test2);
 
     struct Test_Case test3 = {.a = 0, .b = 0, .c = 2, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN};
-    RunOneTest(test3, 3, &passed, &total);
-     print_struct(test3);
+    if (!RunOneTest(test3, 3, &passed, &total)) {
+            flag = 0;
+            test_failed = 3;
+        }
+    else print_struct(test3);
 
     struct Test_Case test4 = {.a = 0, .b = 1, .c = 1, .nrootsRef = 1, .x1ref = -1, .x2ref = NAN};
-    RunOneTest(test4, 4, &passed, &total);
-    print_struct(test4);
+    if (!RunOneTest(test4, 4, &passed, &total)) {
+        flag = 0;
+        test_failed = 4;
+    }
+    else print_struct(test4);
 
     struct Test_Case test5 = {.a = 0, .b = 0, .c = 0, .nrootsRef = -1, .x1ref = NAN, .x2ref = NAN};
-    RunOneTest(test5, 5, &passed, &total);
-    print_struct(test5);
-
+    if (!RunOneTest(test5, 5, &passed, &total)) {
+        flag = 0;
+        test_failed = 5;
+    }
+    else print_struct(test5);
 
     printf("\nПройдено %d из %d тестов\n", passed, total);
+
+    if (flag == 0) {
+        what_test_failed(test_failed);
+        return FALSE;
+    }
+    else return TRUE;
 }
 
 
 void RandomTest() {
+
     int total = 0;
     int passed = 0;
 
     for (int i = 0; i < TESTS; i++) {
 
-            struct kv_ pt;
+            struct kv_eq pt;
             pt.a = rand() % 20001 - 10000;
             pt.b = rand() % 20001 - 10000;
             pt.c = rand() % 20001 - 10000;
@@ -430,7 +472,6 @@ void RandomTest() {
     printf("\n      РАНДОМ ТЕСТЫ\n");
     printf("Пройдено %d из %d рандом тестов\n", passed, total);
 }
-
 
     /* nroots = Solvesq(1, -3, 2, &x1, &x2);
     total++;
