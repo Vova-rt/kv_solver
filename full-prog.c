@@ -66,7 +66,7 @@ int main(void)
 
 int exit_before_start() {
 
-    printf("Хотите завершить программу?\n"
+    printf("\nХотите завершить программу?\n"
     "Если да - введите q, если нет - что угодно\n");
     char ch = '\0';
 
@@ -394,10 +394,38 @@ void what_test_failed(int num) {
 
 int RunTests() {
 
-    int passed = 0, total = 0, flag = 1, test_failed = 0;
+    int passed = 0, total = 0, flag = 1;
     printf("     ТЕСТЫ\n");
 
-    struct Test_Case test1 = {.a = 1, .b = -3, .c = 2, .nrootsRef = 2, .x1ref = 2, .x2ref = 1};
+    struct Test_Case arr[5] = { {.a = 1, .b = -3, .c = 2, .nrootsRef = 2, .x1ref = 2, .x2ref = 1},
+        {.a = 0, .b = 0, .c = 1, .nrootsRef = 1, .x1ref = NAN, .x2ref = NAN},
+        {.a = 0, .b = 0, .c = 2, .nrootsRef = 1, .x1ref = NAN, .x2ref = NAN},
+        {.a = 0, .b = 1, .c = 1, .nrootsRef = 1, .x1ref = -1, .x2ref = NAN},
+        {.a = 0, .b = 0, .c = 0, .nrootsRef = -1, .x1ref = NAN, .x2ref = NAN}
+    };
+    int i = 0;
+    int tests_failed[5] = {};
+    while (i < 5) {
+         if (!RunOneTest(arr[i], i+1, &passed, &total)) {
+            flag = 0;
+            tests_failed[i] = i+1;
+         }
+         print_struct(arr[i]);
+         i++;
+    }
+     if (flag == 0) {
+        printf("\nNOT ALL TESTS PASSED:\n");
+        int i = 0;
+        while (i < 5) {
+            if (tests_failed[i] != 0)
+                what_test_failed(tests_failed[i]);
+            i++;
+        }
+        return FALSE;
+    }
+    else return TRUE;
+
+    /* struct Test_Case test1 = {.a = 1, .b = -3, .c = 2, .nrootsRef = 2, .x1ref = 2, .x2ref = 1};
     if (!RunOneTest(test1, 1, &passed, &total)) {
         flag = 0;
         test_failed = 1;
@@ -439,6 +467,7 @@ int RunTests() {
         return FALSE;
     }
     else return TRUE;
+    */
 }
 
 
@@ -472,40 +501,5 @@ void RandomTest() {
     printf("\n      РАНДОМ ТЕСТЫ\n");
     printf("Пройдено %d из %d рандом тестов\n", passed, total);
 }
-
-    /* nroots = Solvesq(1, -3, 2, &x1, &x2);
-    total++;
-
-
-
-    nroots = Solvesq(0, 0, 0, &x1, &x2);
-    total++;
-
-    if (nroots == -1) {
-        passed++;
-        printf("Тест 2 пройден\n");
-    }
-    else
-        printf("Тест 2 провален\n");
-
-    nroots = Solvesq(0, 0, 2, &x1, &x2);
-    total++;
-
-    if (nroots == 0) {
-        passed++;
-        printf("Тест 3 пройден\n");
-    }
-    else
-        printf("Тест 3 провален\n");
-
-    nroots = Solvesq(0, 1, 1, &x1, &x2);
-    total++;
-
-    if (nroots == 1 && is_root(0, 1, 1, x1)) {
-        passed++;
-        printf("Тест 4 пройден\n");
-    }
-    else
-        printf("Тест 4 провален\n"); */
 
 
