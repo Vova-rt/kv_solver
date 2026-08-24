@@ -54,7 +54,7 @@ int main(void)
         printf("Программа завершена");
         return 0;
     }
-
+    RandomTest();
     if (exit_before_start() == FALSE)
         return 0;
     do {
@@ -84,25 +84,23 @@ int exit_before_start() {
     "Если да - введите q, если нет - что угодно\n");
 
     char ch = '\0';
+
     while (isspace(ch = getchar())) {
-        if (ch == '\n') {
-             printf("Программа завершена");
-            return FALSE;
-        }
+        if (ch == '\n')
+        return TRUE;
     }
-    ungetc(ch, stdin);
-    // printf("%c", getchar());
-    if (ch == 'q') {
-        while (isspace(ch = getchar()) && ch != '\n') ;
+
+    if (ch != 'q') {
+        clear_buffer();
+        return TRUE;
+    }
+    while (isspace(ch = getchar())) {
         if (ch == '\n') {
             printf("Программа завершена");
             return FALSE;
         }
     }
-        else {
-            clear_buffer();
-            return TRUE;
-        }
+    // printf("s");
     clear_buffer();
     return TRUE;
 }
