@@ -12,39 +12,41 @@
 #define E 0.000001
 #define TESTS 1000
 
-struct kv_eq {
+// TODO: kv_eq -> KvEq
+struct KvEq {
     double a, b, c;
     double x1, x2;
     double D;
     int nroots;
 };
 
+// TODO: TestCase
 struct Test_Case {
     double a, b, c;
     int nrootsRef;
     double x1ref,  x2ref;
 };
 
-
+// lowercase
 int abc_(char, double*); // чтение коэффициентов
-int input(struct kv_eq *); //обработка ввода
-void discriminant(struct kv_eq *); // вычисление дискриминанта
-void Solvesq(struct kv_eq *); // счет корней
-void output(const struct kv_eq *); // вывод корней
+int input(struct KvEq *); //обработка ввода
+void discriminant(struct KvEq *); // вычисление дискриминанта
+void solve_sq(struct KvEq *); // счет корней
+void output(const struct KvEq *); // вывод корней
 int continuE(void); //хочет ли пользователь продолжить
 bool is_zero(double); //является ли число нулем
 void clear_buffer(void); //очистка мусорной части ввода
-int is_root(const struct kv_eq *, double); //является ли х корнем
-int RunOneTest(struct Test_Case, int, int*, int*); // ручные тесты
+int is_root(const struct KvEq *, double); //является ли х корнем
+int RunOneTest(struct TestCase, int, int*, int*); // ручные тесты
 int RunTests(); // запуск тестов
 int exit_before_start(); // проверяет хочет ли пользователь завершить программу в самом начале ввода
-void print_struct(struct Test_Case); // печать содержимого структуры
+void print_struct(struct TestCase); // печать содержимого структуры
 void RandomTest();
 void what_test_failed(int);
 
 int main(void)
 {
-    struct kv_eq kv = {};
+    struct KvEq kv = {};
 
     srand((unsigned)time(NULL));
 
@@ -57,9 +59,9 @@ int main(void)
         return 0;
     do {
         input(&kv);
-        Solvesq(&kv);
+        solve_sq(&kv);
         output(&kv);
-        } while (continuE() == TRUE);
+    } while (continuE() == TRUE);
 
     return 0;
 }
@@ -77,11 +79,17 @@ int exit_before_start() {
     clear_buffer();
     return TRUE;
 }
-    /*printf("Хотите завершить программу?\n"
+
+    /* printf("Хотите завершить программу?\n"
     "Если да - введите q, если нет - что угодно\n");
 
     char ch = '\0';
-    while (isspace(ch = getchar())) ;
+    while (isspace(ch = getchar())) {
+        if (ch == '\n) {
+             printf("Программа завершена");
+            return FALSE;
+        }
+    }
     ungetc(ch, stdin);
         if (ch == 'q') {
     while (isspace(ch = getchar()) && ch != '\n') ;
@@ -94,7 +102,8 @@ int exit_before_start() {
             clear_buffer();
             return TRUE;
         }
-        */
+}
+*/
 
 
 int abc_(char s, double* pt_s) {
@@ -131,7 +140,7 @@ int abc_(char s, double* pt_s) {
 
 }
 
-int input(struct kv_eq *pt) {
+int input(struct KvEq *pt) {
 
     assert(pt != NULL);
 
@@ -144,7 +153,7 @@ int input(struct kv_eq *pt) {
     return TRUE;
 }
 
-void discriminant(struct kv_eq *pt) {
+void discriminant(struct KvEq *pt) {
 
     assert(pt != NULL);
 
@@ -152,7 +161,7 @@ void discriminant(struct kv_eq *pt) {
 
 }
 
-void Solvesq(struct kv_eq *pt) {
+void solve_sq(struct KvEq *pt) {
 
     assert(pt != NULL);
 
@@ -200,7 +209,7 @@ void Solvesq(struct kv_eq *pt) {
 
 }
 
-void output(const struct kv_eq *pt) {
+void output(const struct KvEq *pt) {
 
         switch(pt->nroots) {
             case -1:
@@ -218,7 +227,6 @@ void output(const struct kv_eq *pt) {
             default:
                 printf("Ошибка числ корней\n");
         }
-
 
 }
 int continuE(void) {
@@ -293,32 +301,71 @@ void clear_buffer(void) {
         ;
 }
 
-int is_root(const struct kv_eq *pt, double x) {
+int is_root(const struct KvEq *pt, double x) {
 
     double result = pt->a*x*x + pt->b*x + pt->c;
     return (is_zero(result)) ? 1 : 0;
 }
 
 
-void print_struct(struct Test_Case test) {
+void print_struct(struct TestCase test) {
 
     printf("%lg, %lg, %lg, %d, %lg, %lg\n", test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref);
 }
 
 
-int RunOneTest(struct Test_Case test, int num, int* passed, int* total) {
+int RunOneTest(struct TestCase test, int num, int* passed, int* total) {
 
-    struct kv_eq pt;
+    struct KvEq pt;
     pt.a = test.a;
     pt.b = test.b;
     pt.c = test.c;
 
-    Solvesq(&pt);
+    solve_sq(&pt);
     int nroots = pt.nroots;
     double x1 = pt.x1;
     double x2 = pt.x2;
 
-    if (!isnan(x1) && !isnan(x2)) {
+    // bool CompareAnswers(nroots, x1, x2, nroots_ref, x1_ref, x2_ref);
+
+    /*
+    if (a) {x1}
+    else   {x2}
+
+    if (b) {x1}
+    else   {x2}
+
+    if (c) {x1}
+    else   {x2}
+
+    */
+    if ((!isnan(x1) && !isnan(x2) && nroots == test.nrootsRef && is_root(&pt, x1) && is_root(&pt, x2) && fabs(x1-x2) > E) ||
+
+    (isnan(x1) && !isnan(x2) && nroots == test.nrootsRef && is_root(&pt, x2)) ||
+
+    (isnan(x2) && !isnan(x1) && nroots == test.nrootsRef && is_root(&pt, x1)) ||
+
+    (nroots == test.nrootsRef))
+
+    {
+        printf("\n\nТест %d пройден\n", num);
+        (*total)++;
+        (*passed)++;
+        return TRUE;
+    }
+
+
+    else {
+            printf("\n\nТест %d FAILED\na = %lg, b = %lg, c = %lg\n"
+            "Expected: %d roots, x1ref = %lg, x2ref = %lg\n"
+            "got:      %d roots, x1    = %lg, x2    = %lg\n",
+            num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
+            (*total)++;
+            return FALSE;
+        }
+}
+
+    /*if (!isnan(x1) && !isnan(x2)) {
 
         if (nroots == test.nrootsRef && is_root(&pt, x1) && is_root(&pt, x2) && fabs(x1-x2) > E) {
             printf("\n\nТест %d пройден\n", num);
@@ -385,10 +432,11 @@ int RunOneTest(struct Test_Case test, int num, int* passed, int* total) {
     }
     return 1;
 }
+*/
 
 void what_test_failed(int num) {
 
-    printf("\nTEST %d FAILED\n", num);
+    printf("\nTEST %d FAILED\n(information higher)\n\n", num);
 
 }
 
@@ -397,15 +445,21 @@ int RunTests() {
     int passed = 0, total = 0, flag = 1;
     printf("     ТЕСТЫ\n");
 
-    struct Test_Case arr[5] = { {.a = 1, .b = -3, .c = 2, .nrootsRef = 2, .x1ref = 2, .x2ref = 1},
-        {.a = 0, .b = 0, .c = 1, .nrootsRef = 1, .x1ref = NAN, .x2ref = NAN},
-        {.a = 0, .b = 0, .c = 2, .nrootsRef = 1, .x1ref = NAN, .x2ref = NAN},
-        {.a = 0, .b = 1, .c = 1, .nrootsRef = 1, .x1ref = -1, .x2ref = NAN},
-        {.a = 0, .b = 0, .c = 0, .nrootsRef = -1, .x1ref = NAN, .x2ref = NAN}
+    struct Test_Case arr[] = { {.a = 1, .b = -3, .c = 2, .nrootsRef = 2, .x1ref = 2, .x2ref = 1},
+                               {.a = 0, .b = 0, .c = 1, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
+                               {.a = 0, .b = 0, .c = 2, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
+                               {.a = 0, .b = 1, .c = 1, .nrootsRef = 0, .x1ref = -1, .x2ref = NAN},
+                               {.a = 0, .b = 0, .c = 0, .nrootsRef = -1, .x1ref = NAN, .x2ref = NAN},
+                               {.a = 1, .b = 2, .c = 1, .nrootsRef = 1, .x1ref = -1, .x2ref = NAN}
     };
+
+    const int size = sizeof(arr)/sizeof(arr[0]);
+
     int i = 0;
-    int tests_failed[5] = {};
-    while (i < 5) {
+    int tests_failed[size] = {};
+
+    // TODO: подумать как упроcтить логику
+    while (i < size) {
          if (!RunOneTest(arr[i], i+1, &passed, &total)) {
             flag = 0;
             tests_failed[i] = i+1;
@@ -413,10 +467,11 @@ int RunTests() {
          print_struct(arr[i]);
          i++;
     }
-     if (flag == 0) {
+
+    if (flag == 0) {
         printf("\nNOT ALL TESTS PASSED:\n");
         int i = 0;
-        while (i < 5) {
+        while (i < size) {
             if (tests_failed[i] != 0)
                 what_test_failed(tests_failed[i]);
             i++;
@@ -483,7 +538,7 @@ void RandomTest() {
             pt.b = rand() % 20001 - 10000;
             pt.c = rand() % 20001 - 10000;
 
-            Solvesq(&pt);
+            solve_sq(&pt);
 
             int flag = 1;
 
