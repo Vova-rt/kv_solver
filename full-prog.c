@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 
 #define TRUE 1
@@ -14,7 +15,7 @@
 
 // TODO: kv_eq -> KvEq
 struct KvEq {
-    double a, b, c;
+    double a , b, c;
     double x1, x2;
     double D;
     int nroots;
@@ -105,22 +106,88 @@ int exit_before_start() {
     return TRUE;
 }
 
+int input(struct KvEq *pt) {
 
-int abc_(char s, double* pt_s) {
+    assert(pt != NULL);
+    printf("Введите квадратное уравнение\n");
+    char str[100];
+    fgets(str, sizeof(str), stdin);
+    char clean[100];
+    int j = 0;
+
+
+    for (size_t i = 0; i < strlen(str); i++) {
+        if (str[i] == '=')
+            break;
+        if (str[i] != ' ')
+            clean[j++] = str[i];
+    }
+    clean[j] = '\0';
+    int sign = 1;
+    int i = 0;
+
+    while (clean[i]) {
+            }
+        if (clean[i] == '+' || clean[i] == '-') {
+            sign = (clean[i] == '+') ? 1 : -1;
+            i++;
+            continue;
+        }
+        int start_num = i;
+
+        while (clean[i] && clean[i] != '+' && clean[i] != '-')
+            i++;
+
+        char str_num[60];
+        strncpy(str_num, clean + start_num, i - start_num);
+        str_num[i - start_num] = '\0';
+
+        if (strstr(str_num, "x^2")) {
+
+            char* pt1 = strstr(str_num, "x^2");
+            char num[60];
+            int len = pt1 - str_num;
+            strncpy(num, str_num, len);
+            num[len] = '\0';
+
+            if (strlen(num) == 0)
+                pt->a = 1.0;
+            /*else if (strcmp(num, "-") == 0)
+                pt->a = -1.0;
+            else if (strcmp(num, "+") == 0)
+                pt->a = 1.0; */
+            else
+                pt->a = atof(num)*sign;
+        }
+        else if (strstr(str_num, "x")) {
+
+            char* pt1 = strstr(str_num, "x");
+            char num[60];
+            int len = pt1 - str_num;
+            strncpy(num, str_num, len);
+            num[len] = '\0';
+
+            if (strlen(num) == 0)
+                pt->b = 1.0;
+            /* else if (strcmp(num, "-") == 0)
+                pt->b = -1.0;
+            else if (strcmp(num, "+") == 0)
+                pt->b = 1.0; */
+            else
+                pt->b = atof(num)*sign;
+        }
+        else
+            pt->c = atof(str_num)*sign;
+    }
+    return TRUE;
+}
+
+
+/* int abc_(char s, double* pt_s) {
 
     assert(pt_s != NULL);
 
-    /* printf("\nВведите коэффициент %c:\n", s);
-
-    if (scanf("%lf", pt_s) && getchar() == '\n');
-            return TRUE;
-    else {
-        clear_buffer();
-        printf("Ошибка ввода, заново введите коэффициенты\n");
-        return FALSE;
-    } */
-
-    printf("Введите коэффициент %c:\n", s);
+     printf("Введите коэффициент %c:\n", s);
     char ch = 0;
     while (TRUE) {
     int k = scanf("%lf", pt_s);
@@ -151,7 +218,7 @@ int input(struct KvEq *pt) {
     abc_('c', &pt->c);
 
     return TRUE;
-}
+} */
 
 void discriminant(struct KvEq *pt) {
 
