@@ -125,9 +125,10 @@ int input(struct KvEq *pt) {
     clean[j] = '\0';
     int sign = 1;
     int i = 0;
-
+    int flag_a  = 0, flag_b = 0, flag_c = 0;
+    //printf("%lg", pt->a);
     while (clean[i]) {
-            }
+
         if (clean[i] == '+' || clean[i] == '-') {
             sign = (clean[i] == '+') ? 1 : -1;
             i++;
@@ -144,23 +145,22 @@ int input(struct KvEq *pt) {
 
         if (strstr(str_num, "x^2")) {
 
+            flag_a = 1;
             char* pt1 = strstr(str_num, "x^2");
             char num[60];
             int len = pt1 - str_num;
             strncpy(num, str_num, len);
             num[len] = '\0';
 
-            if (strlen(num) == 0)
-                pt->a = 1.0;
-            /*else if (strcmp(num, "-") == 0)
-                pt->a = -1.0;
-            else if (strcmp(num, "+") == 0)
-                pt->a = 1.0; */
+             if (strlen(num) == 0)
+                pt->a = 1.0 * sign;
+
             else
                 pt->a = atof(num)*sign;
         }
         else if (strstr(str_num, "x")) {
 
+            flag_b = 1;
             char* pt1 = strstr(str_num, "x");
             char num[60];
             int len = pt1 - str_num;
@@ -168,7 +168,7 @@ int input(struct KvEq *pt) {
             num[len] = '\0';
 
             if (strlen(num) == 0)
-                pt->b = 1.0;
+               pt->b = 1.0*sign;
             /* else if (strcmp(num, "-") == 0)
                 pt->b = -1.0;
             else if (strcmp(num, "+") == 0)
@@ -176,9 +176,20 @@ int input(struct KvEq *pt) {
             else
                 pt->b = atof(num)*sign;
         }
-        else
+        else {
+            flag_c = 1;
             pt->c = atof(str_num)*sign;
+        }
+        if (flag_a == 0)
+            pt->a = 0;
+        if (flag_b ==0)
+            pt->b = 0;
+        if (flag_c == 0)
+            pt->c = 0;
     }
+    printf("%lg", pt->a);
+    printf("%lg", pt->b);
+    printf("%lg", pt->c);
     return TRUE;
 }
 
