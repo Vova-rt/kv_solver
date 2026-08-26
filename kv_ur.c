@@ -1,3 +1,4 @@
+
 #include <TXLib.h>
 #include <stdio.h>
 #include <math.h>
@@ -5,6 +6,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 
 #define TRUE 1
@@ -13,52 +15,72 @@
 #define TESTS 1000
 
 
-struct Test_Case {
+#define RED "\033[0;31m" //
+#define GREEN "\033[32;47m" // зеленый текст на белом фоне
+#define YELLOW "\033[0;33m" // желтый текст
+#define BLACK "\033[30;47m" // черный текст на белом фоне
+#define PURPLE "\033[0;35m" // фиолетовый текст
+#define ORANGE "\033[38;2;255;127;m" // оранжевый текст
+#define RESET "\033[0m" // Сброс цвета к стандартному
+//printf(RED "Этот текст красный!\n" RESET);
+
+
+struct KvEq {
+    double a , b, c;
+    double x1, x2;
+    double D;
+    int nroots;
+};
+
+
+struct TestCase {
     double a, b, c;
     int nrootsRef;
     double x1ref,  x2ref;
 };
 
 
-int abc_(char, double*); // чтение коэффициентов
-int input(double *, double *, double *); //обработка ввода
-void discriminant(double , double , double, double*); // вычисление дискриминанта
-int Solvesq(double, double, double, double*, double*); // счет корней
-void output(int, double, double); // вывод корней
+// int abc_(char, double*); // чтение коэффициентов
+int input(struct KvEq *); //обработка ввода
+void discriminant(struct KvEq *); // вычисление дискриминанта
+void solve_sq(struct KvEq *); // счет корней
+void output(const struct KvEq *); // вывод корней
 int continuE(void); //хочет ли пользователь продолжить
 bool is_zero(double); //является ли число нулем
 void clear_buffer(void); //очистка мусорной части ввода
-int is_root(double, double, double, double); //является ли х корнем
-int RunOneTest(struct Test_Case, int*, int*); // ручные тесты
-void RunTests(); // запуск тестов
-int exit_before_start(); // проверяет хочет ли пользователь завершить программу в самом начале ввода
-void print_struct(struct Test_Case); // печать содержимого структуры
-void RandomTest();
+int is_root(const struct KvEq *, double); //является ли х корнем
+int RunOneTest(struct TestCase, int, int*, int*); // ручные тесты
+int RunTests(); // запуск тестов
+int exit_before_start(); // проверяет хочет ли пользователь завершить программу в самом начале
+void print_struct(struct TestCase); // печать содержимого структуры
+void RandomTest(); //рандом тесты
+void what_test_failed(int); //какой тест провалился
 
 int main(void)
 {
+    struct KvEq kv = {};
+
     srand((unsigned)time(NULL));
-    RunTests();
+
+    if (!RunTests()) {
+        printf(BLACK "Программа завершена" RESET);
+        return 0;
+    }
     RandomTest();
-
-    double a = 0, b = 0, c = 0;
-    double x1 = 0, x2 = 0;
-    int nroots = 0;
-
     if (exit_before_start() == FALSE)
         return 0;
     do {
-        input(&a, &b, &c);
-        nroots = Solvesq(a, b, c, &x1, &x2);
-        output(nroots, x1, x2);
-        } while (continuE() == TRUE);
+        input(&kv);
+        solve_sq(&kv);
+        output(&kv);
+    } while (continuE() == TRUE);
 
     return 0;
 }
 
 int exit_before_start() {
 
-    printf("Хотите завершить программу?\n"
+    /* printf("\nХотите завершить программу?\n"
     "Если да - введите q, если нет - что угодно\n");
     char ch = '\0';
 
@@ -67,43 +89,140 @@ int exit_before_start() {
         return FALSE;
     }
     clear_buffer();
-    return TRUE;
-}
-    /*printf("Хотите завершить программу?\n"
-    "Если да - введите q, если нет - что угодно\n");
+    return TRUE; */
+
+
+    printf(PURPLE "\nХотите завершить программу?\n"
+    "Если да - введите q, если нет - что угодно" RESET "\n");
 
     char ch = '\0';
-    while (isspace(ch = getchar())) ;
-    ungetc(ch, stdin);
-        if (ch == 'q') {
-    while (isspace(ch = getchar()) && ch != '\n') ;
+
+    while (isspace(ch = getchar())) {
+        if (ch == '\n')
+        return TRUE;
+    }
+
+    if (ch != 'q') {
+        clear_buffer();
+        return TRUE;
+    }
+    while (isspace(ch = getchar())) {
         if (ch == '\n') {
-            printf("Программа завершена");
+            printf(BLACK "Программа завершена" RESET);
             return FALSE;
         }
+    }
+    // printf("s");
+    clear_buffer();
+    return TRUE;
+}
+
+int input(struct KvEq *pt) {
+
+    assert(pt != NULL);
+    printf(PURPLE "Введите квадратное уравнение" RESET "\n");
+    char clean[100];
+    while (TRUE) {
+
+        char str[100];
+        fgets(str, sizeof(str), stdin);
+        int j = 0;
+        int flag = 1;
+
+        for (unsigned int i = 0; i < strlen(str); i++) {
+            if (!isdigit(str[i])) {
+                if ((str[i] != '^') && (str[i] != '+') && (str[i] != '-') && (str[i] != '=') && (!isspace(str[i])) && (str[i] != 'x')) {
+                    printf(RED "Ошибка ввода уравнения, попробуйте еще раз" RESET "\n");
+                    flag = 0;
+                    break;
+                }
+            }
+            if (str[i] != ' ')
+                clean[j++] = str[i];
+        }
+        if (flag == 0)
+            continue;
+        clean[j] = '\0';
+        break;
+    }
+    int sign = 1;
+    int i = 0;
+    int flag_a  = 0, flag_b = 0, flag_c = 0;
+    //printf("%lg", pt->a);
+
+    while (clean[i]) {
+
+        if (clean[i] == '+' || clean[i] == '-') {
+            sign = (clean[i] == '+') ? 1 : -1;
+            i++;
+            continue;
+        }
+        int start_num = i;
+
+        while (clean[i] && clean[i] != '+' && clean[i] != '-')
+            i++;
+
+        char str_num[60];
+        strncpy(str_num, clean + start_num, i - start_num);
+        str_num[i - start_num] = '\0';
+        // printf("%lg\n", pt->a);
+        if (strstr(str_num, "x^2")) {
+
+            flag_a = 1;
+            char* pt1 = strstr(str_num, "x^2");
+            char num[60];
+            int len = pt1 - str_num;
+            strncpy(num, str_num, len);
+            num[len] = '\0';
+
+            if (strlen(num) == 0)
+                pt->a = 1.0 * sign;
+
+            else
+                pt->a = atof(num)*sign;
+        }
+        else if (strstr(str_num, "x")) {
+
+            flag_b = 1;
+            char* pt1 = strstr(str_num, "x");
+            char num[60];
+            int len = pt1 - str_num;
+            strncpy(num, str_num, len);
+            num[len] = '\0';
+
+            if (strlen(num) == 0)
+               pt->b = 1.0*sign;
+            /* else if (strcmp(num, "-") == 0)
+                pt->b = -1.0;
+            else if (strcmp(num, "+") == 0)
+                pt->b = 1.0; */
+            else
+                pt->b = atof(num)*sign;
         }
         else {
-            clear_buffer();
-            return TRUE;
+            flag_c = 1;
+            pt->c = atof(str_num)*sign;
         }
-        */
+        if (flag_a == 0)
+            //printf("%lg", pt->a);
+            pt->a = 0;
+        if (flag_b ==0)
+            pt->b = 0;
+        if (flag_c == 0)
+            pt->c = 0;
+    }
+    printf(YELLOW "a = %lg ", pt->a);
+    printf("b = %lg ", pt->b);
+    printf("c = %lg" RESET "\n", pt->c);
+    return TRUE;
+}
 
 
-int abc_(char s, double* pt_s) {
+/* int abc_(char s, double* pt_s) {
 
     assert(pt_s != NULL);
 
-    /* printf("\nВведите коэффициент %c:\n", s);
-
-    if (scanf("%lf", pt_s) && getchar() == '\n');
-            return TRUE;
-    else {
-        clear_buffer();
-        printf("Ошибка ввода, заново введите коэффициенты\n");
-        return FALSE;
-    } */
-
-    printf("Введите коэффициент %c:\n", s);
+     printf("Введите коэффициент %c:\n", s);
     char ch = 0;
     while (TRUE) {
     int k = scanf("%lf", pt_s);
@@ -123,100 +242,103 @@ int abc_(char s, double* pt_s) {
 
 }
 
-int input(double * a, double * b, double * c) {
+int input(struct KvEq *pt) {
 
-    assert(a != NULL);
-    assert(b != NULL);
-    assert(c != NULL);
+    assert(pt != NULL);
 
     printf("Введите коэффициенты квадратного уравнения\n");
 
-
-    abc_('a', a);
-    abc_('b', b);
-    abc_('c', c);
+    abc_('a', &pt->a);
+    abc_('b', &pt->b);
+    abc_('c', &pt->c);
 
     return TRUE;
+} */
+
+void discriminant(struct KvEq *pt) {
+
+    assert(pt != NULL);
+
+    pt->D = pt->b*pt->b - 4*pt->a*pt->c;
+
 }
 
-void discriminant(double a, double b, double c, double* pt_D) {
+void solve_sq(struct KvEq *pt) {
 
-    assert(pt_D != NULL);
+    assert(pt != NULL);
 
-    *pt_D = b*b - 4*a*c;
+    discriminant(pt);
 
-}
-
-int Solvesq(double a, double b, double c, double* x1, double* x2) {
-
-    assert(x1 != NULL);
-    assert(x2 != NULL);
-    double D = 0;
-    discriminant(a, b, c, &D);
-
-    if (is_zero(a)) {
-        if (is_zero(b)) {
-            if (is_zero(c)) {
-                *x1 = NAN;
-                *x2 = NAN;
-                return -1;
+    if (is_zero(pt->a)) {
+        if (is_zero(pt->b)) {
+            if (is_zero(pt->c)) {
+                pt->x1 = NAN;
+                pt->x2 = NAN;
+                pt->nroots = -1;
             }
             else {
-                *x1 = *x2 = NAN;
-                return 0;
+                pt->x1 = pt->x2 = NAN;
+                pt->nroots = 0;
             }
         }
 
         else {
-            *x2 = NAN;
-            *x1 = -c / b;
-            return 1;
+            pt->x2 = NAN;
+            pt->x1 = -pt->c / pt->b;
+            if (is_zero(pt->x1))
+                pt->x1 = 0;
+            pt->nroots = 1;
         }
     }
 
     else {
-        if (D < 0)
-            return 0;
-        else if (is_zero(D)) {
-            *x2 = NAN;
-            *x1 = -b / (2*a);
-            return 1;
+
+        if (is_zero(pt->D)) {
+            pt->x2 = NAN;
+            pt->x1 = -pt->b / (2*pt->a);
+            if (is_zero(pt->x1))
+                pt->x1 = 0;
+            pt->nroots = 1;
+        }
+
+        else if (pt->D < 0) {
+            pt->x1 = pt->x2 = NAN;
+            pt->nroots = 0;
         }
 
         else {
-        *x1 = (sqrt(D) - b) / (2 * a);
-        *x2 = (-sqrt(D) - b) / (2 * a);
-            return 2;
+        pt->x1 = (sqrt(pt->D) - pt->b) / (2 * pt->a);
+        pt->x2 = (-sqrt(pt->D) - pt->b) / (2 * pt->a);
+        pt->nroots = 2;
         }
     }
 
 }
 
-void output(int nroots, double x1, double x2) {
+void output(const struct KvEq *pt) {
 
-        switch(nroots) {
+        switch(pt->nroots) {
             case -1:
-                printf("Бесконечно много корней\n");
+                printf(ORANGE "Бесконечно много корней" RESET "\n");
                 break;
             case 0:
-                printf("Действительных корней нет\n");
+                printf(ORANGE "Действительных корней нет" RESET "\n");
                 break;
             case 1:
-                printf("Один корень:   x = %lg\n", x1);
+                printf(ORANGE "Один корень:   x = %lg" RESET "\n", pt->x1);
                 break;
             case 2:
-                printf("Два корня:  x1 = %lg, x2 = %lg\n", x1, x2);
+                printf(ORANGE "Два корня:  x1 = %lg, x2 = %lg" RESET "\n", pt->x1, pt->x2);
                 break;
             default:
-                printf("Ошибка числ корней\n");
+                printf(RED "Ошибка числ корней" RESET "\n");
         }
-
 
 }
 int continuE(void) {
 
-    printf("Хотите продолжить?\n"
-    "Введите 1 для продолжения или 0 для завершения\n");
+    printf(PURPLE "Хотите продолжить?\n"
+    "Введите 1 для продолжения или 0 для завершения" RESET "\n");
 
     while (TRUE) {
 
@@ -231,13 +353,13 @@ int continuE(void) {
 
                 else {
                     clear_buffer();
-                    printf("Ошибка ввода, введите 0 или 1\n");
+                    printf(RED "Ошибка ввода, введите 0 или 1" RESET "\n");
                     flag++;
                     break;
                 }
             }
             if (flag == 0) {
-                printf("Программа завершена");
+                printf(BLACK "Программа завершена" RESET "\n");
                 return FALSE;
             }
             else
@@ -251,7 +373,7 @@ int continuE(void) {
 
                 else {
                     clear_buffer();
-                    printf("Ошибка ввода, введите 0 или 1\n");
+                    printf(RED "Ошибка ввода, введите 0 или 1" RESET "\n");
                     flag++;
                     break;
                 }
@@ -264,7 +386,7 @@ int continuE(void) {
         }
         else
             clear_buffer();
-            printf("Ошибка ввода, введите 0 или 1\n");
+            printf(RED "Ошибка ввода, введите 0 или 1\n" RESET "\n");
             continue;
     }
 
@@ -285,36 +407,61 @@ void clear_buffer(void) {
         ;
 }
 
-int is_root(double a, double b, double c, double x) {
+int is_root(const struct KvEq *pt, double x) {
 
-    double result = a*x*x + b*x + c;
+    double result = pt->a*x*x + pt->b*x + pt->c;
     return (is_zero(result)) ? 1 : 0;
-
 }
 
 
-void print_struct(struct Test_Case test) {
+void print_struct(struct TestCase test) {
 
     printf("%lg, %lg, %lg, %d, %lg, %lg\n", test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref);
 }
 
 
-int RunOneTest(struct Test_Case test, int num, int* passed, int* total) {
+int RunOneTest(struct TestCase test, int num, int* passed, int* total) {
 
-    double x1 = 0, x2 = 0;
-    int nroots = Solvesq(test.a, test.b, test.c, &x1, &x2);
-    if (!isnan(x1) && !isnan(x2)) {
-        if (nroots == test.nrootsRef && is_root(test.a, test.b, test.c, x1) && is_root(test.a, test.b, test.c, x2) && fabs(x1-x2) > E) {
+    struct KvEq pt;
+    pt.a = test.a;
+    pt.b = test.b;
+    pt.c = test.c;
+
+    solve_sq(&pt);
+    int nroots = pt.nroots;
+    double x1 = pt.x1;
+    double x2 = pt.x2;
+
+    if ((!isnan(x1) && !isnan(x2) && nroots == test.nrootsRef && is_root(&pt, x1) && is_root(&pt, x2) && fabs(x1-x2) > E) ||
+
+    (isnan(x1) && !isnan(x2) && nroots == test.nrootsRef && is_root(&pt, x2)) ||
+
+    (isnan(x2) && !isnan(x1) && nroots == test.nrootsRef && is_root(&pt, x1)) ||
+
+    (nroots == test.nrootsRef))
+    {
+        printf("\n" GREEN "\nТест %d пройден" RESET "\n", num);
+        (*total)++;
+        (*passed)++;
+        return TRUE;
+    }
+
+    else {
+            printf(RED "\n\nТест %d FAILED\na = %lg, b = %lg, c = %lg\n"
+            "Expected: %d roots, x1ref = %lg, x2ref = %lg\n"
+            "got:      %d roots, x1    = %lg, x2    = %lg" RESET "\n",
+            num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
+            (*total)++;
+            return FALSE;
+    }
+}
+
+    /*if (!isnan(x1) && !isnan(x2)) {
+
+        if (nroots == test.nrootsRef && is_root(&pt, x1) && is_root(&pt, x2) && fabs(x1-x2) > E) {
             printf("\n\nТест %d пройден\n", num);
             (*total)++;
             (*passed)++;
-        /* if (nroots == test.nrootsRef && is_root(1, -3, 2, x1) && is_root(1, -3, 2, x2) && fabs(x1-x2) > E) {
-            printf("\n\nТест %d пройден\n", num);
-            (*total)++;
-            (*passed)++;
-
-        if (nroots == test.nrootsRef && x1 == test.x1ref && x2 == test.x2ref) {
-            printf("\nТест %d пройден\n", num); */
 
         }
         else {
@@ -323,10 +470,12 @@ int RunOneTest(struct Test_Case test, int num, int* passed, int* total) {
             "got:      %d roots, x1    = %lg, x2    = %lg\n",
             num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
             (*total)++;
+            return 0;
         }
     }
     else if (isnan(x1) && !isnan(x2)) {
-        if (nroots == test.nrootsRef && is_root(test.a, test.b, test.c, x2)) {
+
+        if (nroots == test.nrootsRef && is_root(&pt, x2)) {
             printf("\n\nТест %d пройден\n", num);
             (*total)++;
             (*passed)++;
@@ -337,10 +486,12 @@ int RunOneTest(struct Test_Case test, int num, int* passed, int* total) {
             "got:      %d roots, x1    = %lg, x2    = %lg\n",
             num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
             (*total)++;
+            return 0;
         }
     }
     else if (isnan(x2) && !isnan(x1)) {
-        if (nroots == test.nrootsRef && is_root(test.a, test.b, test.c, x1)) {
+
+        if (nroots == test.nrootsRef && is_root(&pt, x1)) {
             printf("\n\nТест %d пройден\n", num);
             (*total)++;
             (*passed)++;
@@ -351,9 +502,11 @@ int RunOneTest(struct Test_Case test, int num, int* passed, int* total) {
             "got:      %d roots, x1    = %lg, x2    = %lg\n",
             num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
             (*total)++;
+            return 0;
         }
     }
     else {
+
         if (nroots == test.nrootsRef) {
             printf("\n\nТест %d пройден\n", num);
             (*total)++;
@@ -365,58 +518,105 @@ int RunOneTest(struct Test_Case test, int num, int* passed, int* total) {
             "got:      %d roots, x1    = %lg, x2    = %lg\n",
             num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
             (*total)++;
+            return 0;
         }
     }
+    return 1;
+}
+*/
+
+void what_test_failed(int num) {
+
+    printf(RED "\nTEST %d FAILED\n(information higher)" RESET "\n\n", num);
 
 }
-void RunTests() {
 
-    int passed = 0, total = 0;
-    printf("     ТЕСТЫ\n");
+int RunTests() {
 
-    struct Test_Case test1 = {.a = 1, .b = -3, .c = 2, .nrootsRef = 2, .x1ref = 2, .x2ref = 1};
-    RunOneTest(test1, 1, &passed, &total);
-    print_struct(test1);
+    int passed = 0, total = 0, flag = 1;
+    printf("\n" ORANGE "     ТЕСТЫ" RESET);
 
-    struct Test_Case test2 = {.a = 0, .b = 0, .c = 1, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN};
-    RunOneTest(test2, 2, &passed, &total);
-    print_struct(test2);
+    struct TestCase arr[] = {  {.a = 1, .b = -3, .c = 2, .nrootsRef = 2, .x1ref = 2, .x2ref = 1},
+                               {.a = 0, .b = 0, .c = 1, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
+                               {.a = 0, .b = 0, .c = 2, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
+                               {.a = 0, .b = 1, .c = 1, .nrootsRef = 1, .x1ref = -1, .x2ref = NAN},
+                               {.a = 0, .b = 0, .c = 0, .nrootsRef = -1, .x1ref = NAN, .x2ref = NAN},
+                               {.a = 1, .b = 2, .c = 1, .nrootsRef = 1, .x1ref = -1, .x2ref = NAN},
+                               {.a = 1, .b = 2, .c = 3, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
+                               {.a = 1, .b = 4, .c = 4, .nrootsRef = 1, .x1ref = -2, .x2ref = NAN},
+                               {.a = 25, .b = 5, .c = 2, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
+                               {.a = 0, .b = 5, .c = 1, .nrootsRef = 1, .x1ref = -0.2, .x2ref = NAN}
 
-    struct Test_Case test3 = {.a = 0, .b = 0, .c = 2, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN};
-    RunOneTest(test3, 3, &passed, &total);
-     print_struct(test3);
+    };
 
-    struct Test_Case test4 = {.a = 0, .b = 1, .c = 1, .nrootsRef = 1, .x1ref = -1, .x2ref = NAN};
-    RunOneTest(test4, 4, &passed, &total);
-    print_struct(test4);
+    const int size = sizeof(arr)/sizeof(arr[0]);
+    int tests_failed[size+1] = {};
 
-    struct Test_Case test5 = {.a = 0, .b = 0, .c = 0, .nrootsRef = -1, .x1ref = NAN, .x2ref = NAN};
-    RunOneTest(test5, 5, &passed, &total);
-    print_struct(test5);
+    for (int i = 0; i < size; i++) {
+        if (!RunOneTest(arr[i], i+1, &passed, &total)) {
+            tests_failed[i] = i+1;
+            flag = 0;
+        }
+        print_struct(arr[i]);
+    }
+    if (flag == 0) {
+        printf(BLACK "\nNOT ALL TESTS PASSED:" RESET "\n");
 
-
-    printf("\nПройдено %d из %d тестов\n", passed, total);
+        for (int i = 0; i < size; i++) {
+            if (tests_failed[i] != 0)
+                what_test_failed(tests_failed[i]);
+        }
+        return FALSE;
+    }
+    return TRUE;
 }
+
+
+    // TODO: подумать как упроcтить логику
+    /* int i = 0;
+    while (i < size) {
+         if (!RunOneTest(arr[i], i+1, &passed, &total)) {
+            flag = 0;
+            tests_failed[i] = i+1;
+         }
+         print_struct(arr[i]);
+         i++;
+    }
+
+    if (flag == 0) {
+        printf("\nNOT ALL TESTS PASSED:\n");
+        int i = 0;
+        while (i < size) {
+            if (tests_failed[i] != 0)
+                what_test_failed(tests_failed[i]);
+            i++;
+        }
+        return FALSE;
+    }
+    else return TRUE;
+} */
 
 
 void RandomTest() {
+
     int total = 0;
     int passed = 0;
-    double a = 0, b = 0, c = 0;
-    int nroots = NAN;
-    double x1 = NAN, x2 = NAN;
 
     for (int i = 0; i < TESTS; i++) {
-            a = rand() % 10000 - 10000;
-            b = rand() % 10000 - 10000;
-            c = rand() % 10000 - 10000;
 
-            nroots = Solvesq(a, b, c, &x1, &x2);
+            struct KvEq pt;
+            pt.a = rand() % 20001 - 10000;
+            pt.b = rand() % 20001 - 10000;
+            pt.c = rand() % 20001 - 10000;
+
+            solve_sq(&pt);
+
             int flag = 1;
-            if (nroots == 1 || nroots == 2) {
-                if(!is_root(a, b, c, x1))
+
+            if (pt.nroots == 1 || pt.nroots == 2) {
+                if(!is_root(&pt, pt.x1))
                     flag = 0;
-                if (nroots == 2 && !is_root(a, b, c, x2))
+                if (pt.nroots == 2 && !is_root(&pt, pt.x2))
                     flag = 0;
             }
             if (flag)
@@ -424,44 +624,8 @@ void RandomTest() {
 
             total++;
     }
-    printf("\n      РАНДОМ ТЕСТЫ\n");
-    printf("Пройдено %d из %d рандом тестов\n", passed, total);
+    printf(ORANGE "\n      РАНДОМ ТЕСТЫ" RESET "\n");
+    printf(GREEN "Пройдено %d из %d рандом тестов" RESET "\n", passed, total);
 }
-
-
-    /* nroots = Solvesq(1, -3, 2, &x1, &x2);
-    total++;
-
-
-
-    nroots = Solvesq(0, 0, 0, &x1, &x2);
-    total++;
-
-    if (nroots == -1) {
-        passed++;
-        printf("Тест 2 пройден\n");
-    }
-    else
-        printf("Тест 2 провален\n");
-
-    nroots = Solvesq(0, 0, 2, &x1, &x2);
-    total++;
-
-    if (nroots == 0) {
-        passed++;
-        printf("Тест 3 пройден\n");
-    }
-    else
-        printf("Тест 3 провален\n");
-
-    nroots = Solvesq(0, 1, 1, &x1, &x2);
-    total++;
-
-    if (nroots == 1 && is_root(0, 1, 1, x1)) {
-        passed++;
-        printf("Тест 4 пройден\n");
-    }
-    else
-        printf("Тест 4 провален\n"); */
 
 
