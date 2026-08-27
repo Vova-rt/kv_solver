@@ -15,6 +15,7 @@
 #define TESTS 1000
 #define BUFF 100
 #define BUFF_NUM 30
+#define MAX_TESTS 10
 
 
 #define RED "\033[0;31m" // красный текст
@@ -54,6 +55,7 @@ int continuE(void); //хочет ли пользователь продолжить
 bool is_zero(double); //является ли число нулем
 void clear_buffer(void); //очистка мусорной части ввода
 int is_root(const struct KvEq *, double); //является ли х корнем
+int equal(double, double); // проверяет равны ли х1 и х2
 int RunOneTest(struct TestCase, int, int*, int*); // ручные тесты
 int RunTests(); // запуск тестов
 void RandomTests(); // рандом тесты

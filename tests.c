@@ -1,3 +1,13 @@
+int equal(double x1, double x2) {
+
+    if (isnan(x1) && isnan(x2))
+        return TRUE;
+    if(isnan(x1) || isnan(x2))
+        return FALSE;
+    else
+        return fabs(x1-x2) < E;
+}
+
 void print_struct(struct TestCase test) {
 
     printf("%lg, %lg, %lg, %d, %lg, %lg\n", test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref);
@@ -20,14 +30,20 @@ int RunOneTest(struct TestCase test, int num, int* passed, int* total) {
     double x1 = hand_test.x1;
     double x2 = hand_test.x2;
 
-    if ((!isnan(x1) && !isnan(x2) && nroots == test.nrootsRef && is_root(&hand_test, x1) && is_root(&hand_test, x2) && fabs(x1-x2) > E) ||
+    bool eql;
 
-    (isnan(x1) && !isnan(x2) && nroots == test.nrootsRef && is_root(&hand_test, x2)) ||
+    if (nroots == 2) {
+        bool direct = equal(x1, test.x1ref) && equal(x2, test.x2ref);
+        bool indirect = equal(x2, test.x1ref) && equal(x1, test.x2ref);
+        eql = direct || indirect;
+        }
+    else if (nroots == 1) {
+        eql = equal(x1, test.x1ref);
+        }
+    else
+        eql = true;
 
-    (isnan(x2) && !isnan(x1) && nroots == test.nrootsRef && is_root(&hand_test, x1)) ||
-
-    (nroots == test.nrootsRef))
-    {
+    if (eql && nroots == test.nrootsRef) {
         printf("\n\n" ONLY_GREEN "Тест %d пройден" RESET "\n", num);
         (*passed)++;
         (*total)++;
@@ -45,75 +61,6 @@ int RunOneTest(struct TestCase test, int num, int* passed, int* total) {
 
 }
 
-    /*if (!isnan(x1) && !isnan(x2)) {
-
-        if (nroots == test.nrootsRef && is_root(&pt, x1) && is_root(&pt, x2) && fabs(x1-x2) > E) {
-            printf("\n\nТест %d пройден\n", num);
-            (*total)++;
-            (*passed)++;
-
-        }
-        else {
-            printf("\n\nТест %d FAILED\na = %lg, b = %lg, c = %lg\n"
-            "Expected: %d roots, x1ref = %lg, x2ref = %lg\n"
-            "got:      %d roots, x1    = %lg, x2    = %lg\n",
-            num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
-            (*total)++;
-            return 0;
-        }
-    }
-    else if (isnan(x1) && !isnan(x2)) {
-
-        if (nroots == test.nrootsRef && is_root(&pt, x2)) {
-            printf("\n\nТест %d пройден\n", num);
-            (*total)++;
-            (*passed)++;
-        }
-        else {
-            printf("\n\nТест %d FAILED\na = %lg, b = %lg, c = %lg\n"
-            "Expected: %d roots, x1ref = %lg, x2ref = %lg\n"
-            "got:      %d roots, x1    = %lg, x2    = %lg\n",
-            num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
-            (*total)++;
-            return 0;
-        }
-    }
-    else if (isnan(x2) && !isnan(x1)) {
-
-        if (nroots == test.nrootsRef && is_root(&pt, x1)) {
-            printf("\n\nТест %d пройден\n", num);
-            (*total)++;
-            (*passed)++;
-        }
-        else {
-            printf("\n\nТест %d FAILED\na = %lg, b = %lg, c = %lg\n"
-            "Expected: %d roots, x1ref = %lg, x2ref = %lg\n"
-            "got:      %d roots, x1    = %lg, x2    = %lg\n",
-            num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
-            (*total)++;
-            return 0;
-        }
-    }
-    else {
-
-        if (nroots == test.nrootsRef) {
-            printf("\n\nТест %d пройден\n", num);
-            (*total)++;
-            (*passed)++;
-        }
-        else {
-            printf("\n\nТест %d FAILED\na = %lg, b = %lg, c = %lg\n"
-            "Expected: %d roots, x1ref = %lg, x2ref = %lg\n"
-            "got:      %d roots, x1    = %lg, x2    = %lg\n",
-            num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
-            (*total)++;
-            return 0;
-        }
-    }
-    return 1;
-}
-*/
-
 void what_test_failed(int num) {
 
     printf(RED "\nTEST %d FAILED\n(information higher)" RESET "\n\n", num);
@@ -122,7 +69,7 @@ void what_test_failed(int num) {
 
 int RunTests() {
 
-    struct TestCase arr[] = {  {.a = 1, .b = -3, .c = 2, .nrootsRef = 2, .x1ref = 2, .x2ref = 1},
+    /*struct TestCase arr[] = {  {.a = 1, .b = -3, .c = 2, .nrootsRef = 2, .x1ref = 2, .x2ref = 1},
                                {.a = 0, .b = 0, .c = 1, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
                                {.a = 0, .b = 0, .c = 2, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
                                {.a = 0, .b = 1, .c = 1, .nrootsRef = 1, .x1ref = -1, .x2ref = NAN},
@@ -132,33 +79,74 @@ int RunTests() {
                                {.a = 1, .b = 4, .c = 4, .nrootsRef = 1, .x1ref = -2, .x2ref = NAN},
                                {.a = 25, .b = 5, .c = 2, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
                                {.a = 0, .b = 5, .c = 1, .nrootsRef = 1, .x1ref = -0.2, .x2ref = NAN}
-    };
+    };*/
+    FILE *fp = fopen("hand_tests.txt", "r");
+    if(!fp) {
+        printf("Ошибка, не удалось открыть файл\n");
+        return FALSE;
+    }
+
+    TestCase arr[MAX_TESTS] = {};
+    int num_test = 0;
+    char line[BUFF];
+
+    while (fgets(line, sizeof(line), fp) && num_test < MAX_TESTS) {
+
+        double a = 0, b = 0, c = 0;
+        int nrootsRef = 0;
+        char x1_str[BUFF_NUM], x2_str[BUFF_NUM];
+
+        int n = sscanf(line, "%lf %lf %lf %d %s %s", &a, &b, &c, &nrootsRef, x1_str, x2_str);
+        if (n != 6) {
+            printf("Некорректная строка(была пропущена): %s\n", line);
+            continue;
+        }
+        arr[num_test].a = a;
+        arr[num_test].b = b;
+        arr[num_test].c = c;
+        arr[num_test].nrootsRef = nrootsRef;
+        if ((strcmp(x1_str, "nan") || strcmp(x1_str, "NAN")) == 0)
+            arr[num_test].x1ref = NAN;
+        else
+            arr[num_test].x1ref = atof(x1_str);
+        if ((strcmp(x2_str, "nan") || strcmp(x2_str, "NAN")) == 0)
+            arr[num_test].x2ref = NAN;
+        else
+            arr[num_test].x2ref = atof(x2_str);
+
+        num_test++;
+    }
+    fclose(fp);
 
     int passed = 0, total = 0, flag = 1;
     printf("\n" "\033[38;2;220;80;0;47m" "    ТЕСТЫ     " RESET);
 
-    const int size = sizeof(arr)/sizeof(arr[0]);
-    int tests_failed[size+1] = {};
+    // const int size = sizeof(arr)/sizeof(arr[0]);
+    int tests_failed[num_test+1];
+    for (int k = 0; k < num_test + 1; k++)
+        tests_failed[k] = 0;
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < num_test; i++) {
         if (!RunOneTest(arr[i], i+1, &passed, &total)) {
             tests_failed[i] = i+1;
             flag = 0;
         }
         print_struct(arr[i]);
     }
+
     if (flag == 0) {
         printf(BLACK "\nNOT ALL TESTS PASSED:" RESET "\n");
 
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < num_test; i++) {
             if (tests_failed[i] != 0)
                 what_test_failed(tests_failed[i]);
         }
         return FALSE;
     }
-    else
-    printf("\n" GREEN "ВСЕ ТЕСТЫ ПРОЙДЕНЫ" RESET "\n");
-    return TRUE;
+    else {
+        printf("\n" GREEN "ВСЕ ТЕСТЫ ПРОЙДЕНЫ" RESET "\n");
+        return TRUE;
+    }
 
 }
 
