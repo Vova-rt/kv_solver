@@ -45,10 +45,10 @@ struct TestCase {
 
 
 // int abc_(char, double*); // чтение коэффициентов
-int exit_before_start(); // проверяет хочет ли пользователь завершить программу в самом начале
-int input(struct KvEq *); //обработка ввода
+int exit_before_start(); // проверяет хочет ли пользователь завершить программу после завершения тестов
+int input(struct KvEq *); //обработка ввода(вида ax^2 + bx + c)
 void discriminant(struct KvEq *); // вычисление дискриминанта
-void solve_sq(struct KvEq *); // счет корней
+void solve_eq(struct KvEq *); // счет корней
 void output(const struct KvEq *); // вывод корней
 int continuE(void); //хочет ли пользователь продолжить
 bool is_zero(double); //является ли число нулем
@@ -56,7 +56,7 @@ void clear_buffer(void); //очистка мусорной части ввода
 int is_root(const struct KvEq *, double); //является ли х корнем
 int RunOneTest(struct TestCase, int, int*, int*); // ручные тесты
 int RunTests(); // запуск тестов
-void RandomTest(); // рандом тесты
+void RandomTests(); // рандом тесты
 void print_struct(struct TestCase); // печать содержимого структуры(для тестов)
 void what_test_failed(int); // номер теста, который провалился
 
@@ -70,12 +70,12 @@ int main(void)
         printf(BLACK "Программа завершена" RESET);
         return 0;
     }
-    RandomTest();
+    RandomTests();
     if (exit_before_start() == FALSE)
         return 0;
     do {
         input(&main_kv);
-        solve_sq(&main_kv);
+        solve_eq(&main_kv);
         output(&main_kv);
     } while (continuE() == TRUE);
 

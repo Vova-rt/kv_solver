@@ -1,6 +1,7 @@
 void print_struct(struct TestCase test) {
 
     printf("%lg, %lg, %lg, %d, %lg, %lg\n", test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref);
+
 }
 
 
@@ -9,27 +10,27 @@ int RunOneTest(struct TestCase test, int num, int* passed, int* total) {
     assert(passed != NULL);
     assert(total != NULL);
 
-    struct KvEq pt;
-    pt.a = test.a;
-    pt.b = test.b;
-    pt.c = test.c;
+    struct KvEq hand_test;
+    hand_test.a = test.a;
+    hand_test.b = test.b;
+    hand_test.c = test.c;
 
-    solve_sq(&pt);
-    int nroots = pt.nroots;
-    double x1 = pt.x1;
-    double x2 = pt.x2;
+    solve_eq(&hand_test);
+    int nroots = hand_test.nroots;
+    double x1 = hand_test.x1;
+    double x2 = hand_test.x2;
 
-    if ((!isnan(x1) && !isnan(x2) && nroots == test.nrootsRef && is_root(&pt, x1) && is_root(&pt, x2) && fabs(x1-x2) > E) ||
+    if ((!isnan(x1) && !isnan(x2) && nroots == test.nrootsRef && is_root(&hand_test, x1) && is_root(&hand_test, x2) && fabs(x1-x2) > E) ||
 
-    (isnan(x1) && !isnan(x2) && nroots == test.nrootsRef && is_root(&pt, x2)) ||
+    (isnan(x1) && !isnan(x2) && nroots == test.nrootsRef && is_root(&hand_test, x2)) ||
 
-    (isnan(x2) && !isnan(x1) && nroots == test.nrootsRef && is_root(&pt, x1)) ||
+    (isnan(x2) && !isnan(x1) && nroots == test.nrootsRef && is_root(&hand_test, x1)) ||
 
     (nroots == test.nrootsRef))
     {
         printf("\n\n" ONLY_GREEN "Тест %d пройден" RESET "\n", num);
-        (*total)++;
         (*passed)++;
+        (*total)++;
         return TRUE;
     }
 
@@ -41,6 +42,7 @@ int RunOneTest(struct TestCase test, int num, int* passed, int* total) {
             (*total)++;
             return FALSE;
     }
+
 }
 
     /*if (!isnan(x1) && !isnan(x2)) {
@@ -157,6 +159,7 @@ int RunTests() {
     else
     printf("\n" GREEN "ВСЕ ТЕСТЫ ПРОЙДЕНЫ" RESET "\n");
     return TRUE;
+
 }
 
 
@@ -185,7 +188,7 @@ int RunTests() {
 } */
 
 
-void RandomTest() {
+void RandomTests() {
 
     int total = 0;
     int passed = 0;
@@ -196,7 +199,7 @@ void RandomTest() {
             random.b = rand() % 20000 - 10000;
             random.c = rand() % 20000 - 10000;
 
-            solve_sq(&random);
+            solve_eq(&random);
 
             int flag = 1;
 
@@ -221,5 +224,6 @@ void RandomTest() {
     }
     printf(ORANGE "\n      РАНДОМ ТЕСТЫ" RESET "\n");
     printf(GREEN "Пройдено %d из %d рандом тестов" RESET "\n", passed, total);
+
 }
 

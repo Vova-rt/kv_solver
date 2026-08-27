@@ -11,7 +11,6 @@ int exit_before_start() {
     clear_buffer();
     return TRUE; */
 
-
     printf(BLUE "\nХотите завершить программу?\n"
     "Если да - введите q, если нет - что угодно" RESET "\n");
 
@@ -35,6 +34,7 @@ int exit_before_start() {
     // printf("s");
     clear_buffer();
     return TRUE;
+
 }
 
 int input(struct KvEq *pt) {
@@ -47,7 +47,7 @@ int input(struct KvEq *pt) {
     while (TRUE) {
 
         fgets(str, sizeof(str), stdin);
-        unsigned int size = strlen(str);
+        unsigned int size = sizeof(str);
         int j = 0;
         int flag = 1;
 
@@ -63,7 +63,7 @@ int input(struct KvEq *pt) {
                     break;
                 }
 
-            if (str[i] != ' ')
+            if (!isspace(str[i]))
                 clean[j++] = str[i];
         }
 
@@ -83,7 +83,7 @@ int input(struct KvEq *pt) {
         if (clean[i] == '+' || clean[i] == '-') {
             sign = (clean[i] == '+') ? 1 : -1;
             i++;
-            continue;
+            // continue;
         }
         int start_num = i;
 
@@ -143,6 +143,7 @@ int input(struct KvEq *pt) {
     printf("b = %lg ", pt->b);
     printf("c = %lg" RESET "\n", pt->c);
     return TRUE;
+
 }
 
 
@@ -191,7 +192,7 @@ void discriminant(struct KvEq *pt) {
 
 }
 
-void solve_sq(struct KvEq *pt) {
+void solve_eq(struct KvEq *pt) {
 
     assert(pt != NULL);
 
@@ -235,9 +236,9 @@ void solve_sq(struct KvEq *pt) {
         }
 
         else {
-        pt->x1 = (sqrt(pt->D) - pt->b) / (2 * pt->a);
-        pt->x2 = (-sqrt(pt->D) - pt->b) / (2 * pt->a);
-        pt->nroots = 2;
+            pt->x1 = (sqrt(pt->D) - pt->b) / (2 * pt->a);
+            pt->x2 = (-sqrt(pt->D) - pt->b) / (2 * pt->a);
+            pt->nroots = 2;
         }
     }
 
@@ -319,7 +320,7 @@ int continuE(void) {
             continue;
     }
 
-    }
+}
 
 bool is_zero(double s1) {
 
@@ -335,6 +336,7 @@ void clear_buffer(void) {
 
     while (getchar() != '\n')
         ;
+
 }
 
 int is_root(const struct KvEq *pt, double x) {
@@ -342,4 +344,5 @@ int is_root(const struct KvEq *pt, double x) {
     assert(pt != NULL);
     double result = pt->a*x*x + pt->b*x + pt->c;
     return (is_zero(result)) ? 1 : 0;
+
 }
