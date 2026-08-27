@@ -120,8 +120,20 @@ void what_test_failed(int num) {
 
 int RunTests() {
 
+    struct TestCase arr[] = {  {.a = 1, .b = -3, .c = 2, .nrootsRef = 2, .x1ref = 2, .x2ref = 1},
+                               {.a = 0, .b = 0, .c = 1, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
+                               {.a = 0, .b = 0, .c = 2, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
+                               {.a = 0, .b = 1, .c = 1, .nrootsRef = 1, .x1ref = -1, .x2ref = NAN},
+                               {.a = 0, .b = 0, .c = 0, .nrootsRef = -1, .x1ref = NAN, .x2ref = NAN},
+                               {.a = 1, .b = 2, .c = 1, .nrootsRef = 1, .x1ref = -1, .x2ref = NAN},
+                               {.a = 1, .b = 2, .c = 3, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
+                               {.a = 1, .b = 4, .c = 4, .nrootsRef = 1, .x1ref = -2, .x2ref = NAN},
+                               {.a = 25, .b = 5, .c = 2, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
+                               {.a = 0, .b = 5, .c = 1, .nrootsRef = 1, .x1ref = -0.2, .x2ref = NAN}
+    };
+
     int passed = 0, total = 0, flag = 1;
-    printf("\n" "\033[38;2;220;80;0;47m" "     “≈—“€" RESET);
+    printf("\n" "\033[38;2;220;80;0;47m" "    “≈—“€     " RESET);
 
     const int size = sizeof(arr)/sizeof(arr[0]);
     int tests_failed[size+1] = {};
@@ -143,7 +155,7 @@ int RunTests() {
         return FALSE;
     }
     else
-    printf("\n"GREEN "¬—≈ “≈—“€ œ–Œ…ƒ≈Õ€" RESET "\n");
+    printf("\n" GREEN "¬—≈ “≈—“€ œ–Œ…ƒ≈Õ€" RESET "\n");
     return TRUE;
 }
 
@@ -179,26 +191,33 @@ void RandomTest() {
     int passed = 0;
 
     for (int i = 0; i < TESTS; i++) {
+            struct KvEq random;
+            random.a = rand() % 20000 - 10000;
+            random.b = rand() % 20000 - 10000;
+            random.c = rand() % 20000 - 10000;
 
-            struct KvEq pt;
-            pt.a = rand() % 20001 - 10000;
-            pt.b = rand() % 20001 - 10000;
-            pt.c = rand() % 20001 - 10000;
-
-            solve_sq(&pt);
+            solve_sq(&random);
 
             int flag = 1;
 
-            if (pt.nroots == 1 || pt.nroots == 2) {
-                if(!is_root(&pt, pt.x1))
+             if (random.nroots == 1 || random.nroots == 2) {
+                if(!is_root(&random, random.x1))
                     flag = 0;
-                if (pt.nroots == 2 && !is_root(&pt, pt.x2))
+                if (random.nroots == 2 && !is_root(&random, random.x2))
                     flag = 0;
             }
             if (flag)
                 passed++;
 
             total++;
+            /* if ((random.nroots == 1 || random.nroots == 2) && (!is_root(&random, random.x1)) ||
+            (random.nroots == 2 && !is_root(&random, random.x2)))
+
+                    flag = 0;
+            if (flag)
+                passed++;
+            total++; */
+
     }
     printf(ORANGE "\n      –¿ÕƒŒÃ “≈—“€" RESET "\n");
     printf(GREEN "œÓÈ‰ÂÌÓ %d ËÁ %d ‡Ì‰ÓÏ ÚÂÒÚÓ‚" RESET "\n", passed, total);

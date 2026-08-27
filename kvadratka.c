@@ -12,14 +12,14 @@ int exit_before_start() {
     return TRUE; */
 
 
-    printf(PURPLE "\nХотите завершить программу?\n"
+    printf(BLUE "\nХотите завершить программу?\n"
     "Если да - введите q, если нет - что угодно" RESET "\n");
 
-    char ch = '\0';
+    int ch = '\0';
 
     while (isspace(ch = getchar())) {
         if (ch == '\n')
-        return TRUE;
+            return TRUE;
     }
 
     if (ch != 'q') {
@@ -41,28 +41,35 @@ int input(struct KvEq *pt) {
 
     assert(pt != NULL);
 
-    printf(PURPLE "Введите квадратное уравнение" RESET "\n");
-    char clean[100];
+    printf(PURPLE "Введите уравнение(до второй степени)" RESET "\n");
+    char str[BUFF];
+    char clean[BUFF];
     while (TRUE) {
 
-        char str[100];
         fgets(str, sizeof(str), stdin);
+        unsigned int size = strlen(str);
         int j = 0;
         int flag = 1;
 
-        for (unsigned int i = 0; i < strlen(str); i++) {
-            if (!isdigit(str[i])) {
-                if ((str[i] != '^') && (str[i] != '+') && (str[i] != '-') && (str[i] != '=') && (!isspace(str[i])) && (str[i] != 'x')) {
+        for (unsigned int i = 0; str[i]; i++) {
+
+            assert(i < size);
+
+            if (!isdigit(str[i]) && (str[i] != '^') && (str[i] != '+') && (str[i] != '-') &&
+            (str[i] != '=') && (!isspace(str[i])) && (str[i] != 'x')) {
+
                     printf(RED "Ошибка ввода уравнения, попробуйте еще раз" RESET "\n");
                     flag = 0;
                     break;
                 }
-            }
+
             if (str[i] != ' ')
                 clean[j++] = str[i];
         }
+
         if (flag == 0)
             continue;
+
         clean[j] = '\0';
         break;
     }
@@ -83,15 +90,15 @@ int input(struct KvEq *pt) {
         while (clean[i] && clean[i] != '+' && clean[i] != '-')
             i++;
 
-        char str_num[60];
+        char str_num[BUFF_NUM];
         strncpy(str_num, clean + start_num, i - start_num);
         str_num[i - start_num] = '\0';
         // printf("%lg\n", pt->a);
-        if (strstr(str_num, "x^2")) {
 
+        if (strstr(str_num, "x^2")) {
             flag_a = 1;
             char* pt1 = strstr(str_num, "x^2");
-            char num[60];
+            char num[BUFF_NUM];
             int len = pt1 - str_num;
             strncpy(num, str_num, len);
             num[len] = '\0';
@@ -106,7 +113,7 @@ int input(struct KvEq *pt) {
 
             flag_b = 1;
             char* pt1 = strstr(str_num, "x");
-            char num[60];
+            char num[BUFF_NUM];
             int len = pt1 - str_num;
             strncpy(num, str_num, len);
             num[len] = '\0';
@@ -271,7 +278,7 @@ int continuE(void) {
         if (ch == 0) {
             while((ch = getchar()) != '\n') {
                 if (isspace(ch))
-                continue;
+                    continue;
 
                 else {
                     clear_buffer();
@@ -288,10 +295,10 @@ int continuE(void) {
                 continue;
         }
 
-        if (ch == 1) {
+        else if (ch == 1) {
             while((ch = getchar()) != '\n') {
                 if (isspace(ch))
-                continue;
+                    continue;
 
                 else {
                     clear_buffer();
@@ -319,7 +326,8 @@ bool is_zero(double s1) {
     if (fabs(s1) < E)
         return true;
 
-    else return false;
+    else
+        return false;
 
 }
 

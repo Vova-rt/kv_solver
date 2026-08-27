@@ -1,5 +1,3 @@
-#include <kvadratka.c>
-#include <tests.c>
 
 #include <TXLib.h>
 #include <stdio.h>
@@ -15,6 +13,8 @@
 #define FALSE 0
 #define E 0.000001
 #define TESTS 1000
+#define BUFF 100
+#define BUFF_NUM 30
 
 
 #define RED "\033[0;31m" // красный текст
@@ -24,6 +24,7 @@
 #define BLACK "\033[30;47m" // черный текст на белом фоне
 #define PURPLE "\033[0;35m" // фиолетовый текст
 #define ORANGE "\033[38;2;255;127;m" // оранжевый текст
+#define BLUE "\033[1;34m"
 #define RESET "\033[0m" // Сброс цвета к стандартному
 //printf(RED "Этот текст красный!" RESET "\n");
 
@@ -44,6 +45,7 @@ struct TestCase {
 
 
 // int abc_(char, double*); // чтение коэффициентов
+int exit_before_start(); // проверяет хочет ли пользователь завершить программу в самом начале
 int input(struct KvEq *); //обработка ввода
 void discriminant(struct KvEq *); // вычисление дискриминанта
 void solve_sq(struct KvEq *); // счет корней
@@ -54,15 +56,13 @@ void clear_buffer(void); //очистка мусорной части ввода
 int is_root(const struct KvEq *, double); //является ли х корнем
 int RunOneTest(struct TestCase, int, int*, int*); // ручные тесты
 int RunTests(); // запуск тестов
-int exit_before_start(); // проверяет хочет ли пользователь завершить программу в самом начале
-void print_struct(struct TestCase); // печать содержимого структуры
-void RandomTest(); //рандом тесты
-void what_test_failed(int); //какой тест провалился
+void RandomTest(); // рандом тесты
+void print_struct(struct TestCase); // печать содержимого структуры(для тестов)
+void what_test_failed(int); // номер теста, который провалился
 
 int main(void)
 {
-
-    struct KvEq kv = {};
+    struct KvEq main_kv ={};
 
     srand((unsigned)time(NULL));
 
@@ -74,10 +74,12 @@ int main(void)
     if (exit_before_start() == FALSE)
         return 0;
     do {
-        input(&kv);
-        solve_sq(&kv);
-        output(&kv);
+        input(&main_kv);
+        solve_sq(&main_kv);
+        output(&main_kv);
     } while (continuE() == TRUE);
 
     return 0;
 }
+#include "kvadratka.c"
+#include "tests.c"
