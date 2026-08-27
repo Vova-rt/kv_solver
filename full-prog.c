@@ -577,7 +577,7 @@ int RunTests() {
         return FALSE;
     }
     else
-    printf("\n"GREEN "бяе реярш опнидемш" RESET "\n");
+    printf("\n" GREEN "бяе реярш опнидемш" RESET "\n");
     return TRUE;
 }
 
