@@ -41,7 +41,7 @@ int input(struct KvEq *pt) {
 
     assert(pt != NULL);
 
-    printf(PURPLE "¬ведите уравнение(до второй степени)" RESET "\n");
+    printf(PURPLE "¬ведите уравнение вида ax^2 + bx + c = 0" RESET "\n");
     char str[BUFF];
     char clean[BUFF];
     while (TRUE) {

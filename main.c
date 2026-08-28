@@ -42,6 +42,7 @@ struct TestCase {
     double a, b, c;
     int nrootsRef;
     double x1ref,  x2ref;
+    int line_number;
 };
 
 
