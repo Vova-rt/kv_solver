@@ -2,10 +2,10 @@ int equal(double x1, double x2) {
 
     if (isnan(x1) && isnan(x2))
         return TRUE;
-    if(isnan(x1) || isnan(x2))
+    if (isnan(x1) || isnan(x2))
         return FALSE;
     else
-        return fabs(x1-x2) < E;
+        return (fabs(x1-x2) < E);
 }
 
 void print_struct(struct TestCase test) {
@@ -35,11 +35,16 @@ int RunOneTest(struct TestCase test, int num, int* passed, int* total) {
     if (nroots == 2) {
         bool direct = equal(x1, test.x1ref) && equal(x2, test.x2ref);
         bool indirect = equal(x2, test.x1ref) && equal(x1, test.x2ref);
-        eql = direct || indirect;
+        eql = (direct || indirect);
         }
+
     else if (nroots == 1) {
-        eql = equal(x1, test.x1ref);
+        if (!isnan(x1))
+            eql = equal(x1, test.x1ref) || equal(x1, test.x2ref);
+        else
+            eql = equal(x2, test.x1ref) || equal(x2, test.x2ref);
         }
+
     else
         eql = true;
 
@@ -94,9 +99,12 @@ int RunTests() {
 
         double a = 0, b = 0, c = 0;
         int nrootsRef = 0;
-        char x1_str[BUFF_NUM], x2_str[BUFF_NUM];
+        char x1_str[BUFF_NUM] = {}, x2_str[BUFF_NUM] = {};
 
         int n = sscanf(line, "%lf %lf %lf %d %s %s", &a, &b, &c, &nrootsRef, x1_str, x2_str);
+
+        //printf("%s %d %c\n", x1_str, strlen(x1_str), x1_str[3]);
+        //printf("%s\n\n", x2_str);
         if (n != 6) {
             printf("Некорректная строка(была пропущена): %s\n", line);
             continue;
@@ -105,15 +113,18 @@ int RunTests() {
         arr[num_test].b = b;
         arr[num_test].c = c;
         arr[num_test].nrootsRef = nrootsRef;
-        if ((strcmp(x1_str, "nan") || strcmp(x1_str, "NAN")) == 0)
+
+        if ((strstr(x1_str, "nan") != NULL) || (strstr(x1_str, "NAN")) != NULL)
             arr[num_test].x1ref = NAN;
         else
             arr[num_test].x1ref = atof(x1_str);
-        if ((strcmp(x2_str, "nan") || strcmp(x2_str, "NAN")) == 0)
+        if ((strstr(x2_str, "nan") != NULL) || (strstr(x2_str, "NAN")) != NULL)
             arr[num_test].x2ref = NAN;
         else
             arr[num_test].x2ref = atof(x2_str);
 
+        printf("%lf\n", arr[num_test].x1ref);
+        printf("%lf\n\n", arr[num_test].x2ref);
         num_test++;
     }
     fclose(fp);
@@ -151,31 +162,6 @@ int RunTests() {
 }
 
 
-    // TODO: подумать как упроcтить логику
-    /* int i = 0;
-    while (i < size) {
-         if (!RunOneTest(arr[i], i+1, &passed, &total)) {
-            flag = 0;
-            tests_failed[i] = i+1;
-         }
-         print_struct(arr[i]);
-         i++;
-    }
-
-    if (flag == 0) {
-        printf("\nNOT ALL TESTS PASSED:\n");
-        int i = 0;
-        while (i < size) {
-            if (tests_failed[i] != 0)
-                what_test_failed(tests_failed[i]);
-            i++;
-        }
-        return FALSE;
-    }
-    else return TRUE;
-} */
-
-
 void RandomTests() {
 
     int total = 0;
@@ -201,13 +187,6 @@ void RandomTests() {
                 passed++;
 
             total++;
-            /* if ((random.nroots == 1 || random.nroots == 2) && (!is_root(&random, random.x1)) ||
-            (random.nroots == 2 && !is_root(&random, random.x2)))
-
-                    flag = 0;
-            if (flag)
-                passed++;
-            total++; */
 
     }
     printf(ORANGE "\n      РАНДОМ ТЕСТЫ" RESET "\n");
