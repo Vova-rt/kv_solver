@@ -38,10 +38,9 @@ void what_line_skipped(int num) {
 
 }
 
-int RunOneTest(struct TestCase test, int num, int* passed, int* total) {
+int RunOneTest(struct TestCase test, int num, int* passed) {
 
     assert(passed != NULL);
-    assert(total != NULL);
 
     struct KvEq hand_test;
     hand_test.a = test.a;
@@ -74,7 +73,6 @@ int RunOneTest(struct TestCase test, int num, int* passed, int* total) {
     if (eql && (nroots == test.nrootsRef)) {
         printf( ONLY_GREEN "Òåñò %d ïğîéäåí" RESET "\n", num);
         (*passed)++;
-        (*total)++;
         return TRUE;
     }
 
@@ -83,7 +81,6 @@ int RunOneTest(struct TestCase test, int num, int* passed, int* total) {
             "Expected: %d roots, x1ref = %lg, x2ref = %lg\n"
             "got:      %d roots, x1    = %lg, x2    = %lg" RESET "\n",
             num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
-            (*total)++;
             return FALSE;
     }
 
@@ -185,18 +182,20 @@ int RunTests() {
     fclose(fp); */
 
 
-    int passed = 0, total = 0;
+    int passed = 0;
     int tests_failed[MAX_TESTS] = {};
 
     for (int i = 0; i < num_test; i++) {
         if (lines_skipped[i] != i+1) {
-            if (!RunOneTest(arr[i], arr[i].line_number, &passed, &total)) {
+            if (!RunOneTest(arr[i], arr[i].line_number, &passed)) {
                 tests_failed[i] = i+1;
                 flag = 0;
             }
         }
         print_struct(arr[i]);
     }
+
+    printf(ORANGE "ÏĞÎÉÄÅÍÎ %d ÈÇ %d ĞÓ×ÍÛÕ ÒÅÑÒÎÂ" RESET "\n", passed, line_counter);
 
     if (!flag && !skip_lines) {
         printf(BLACK "\nNOT ALL TESTS PASSED:" RESET "\n");
