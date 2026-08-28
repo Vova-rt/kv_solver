@@ -56,11 +56,13 @@ bool is_zero(double); //является ли число нулем
 void clear_buffer(void); //очистка мусорной части ввода
 int is_root(const struct KvEq *, double); //является ли х корнем
 int equal(double, double); // проверяет равны ли х1 и х2
+int is_str_number(char*); // проверяет является ли строковое представление числа числом
 int RunOneTest(struct TestCase, int, int*, int*); // ручные тесты
 int RunTests(); // запуск тестов
 void RandomTests(); // рандом тесты
 void print_struct(struct TestCase); // печать содержимого структуры(для тестов)
 void what_test_failed(int); // номер теста, который провалился
+void what_line_skipped(int); // номер строки файла с тестами, которая не была корректно считана
 
 int main(void)
 {

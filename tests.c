@@ -8,12 +8,35 @@ int equal(double x1, double x2) {
         return (fabs(x1-x2) < E);
 }
 
+int is_str_number(char *str) {
+
+    if (strcmp(str, "nan") == 0 || strcmp(str, "NAN") == 0)
+        return TRUE;
+
+    char *pt;
+    strtod(str, &pt);
+    if (pt != str && *pt == '\0')
+        return TRUE;
+
+    return FALSE;
+}
 void print_struct(struct TestCase test) {
 
     printf("%lg, %lg, %lg, %d, %lg, %lg\n", test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref);
 
 }
 
+void what_test_failed(int num) {
+
+    printf(RED "\nTEST %d FAILED\n(information higher)" RESET "\n\n", num);
+
+}
+
+void what_line_skipped(int num) {
+
+    printf(RED "\nLINE %d WAS SKIPPED\n(information higher)" RESET "\n\n", num);
+
+}
 
 int RunOneTest(struct TestCase test, int num, int* passed, int* total) {
 
@@ -48,7 +71,7 @@ int RunOneTest(struct TestCase test, int num, int* passed, int* total) {
     else
         eql = true;
 
-    if (eql && nroots == test.nrootsRef) {
+    if (eql && (nroots == test.nrootsRef)) {
         printf("\n\n" ONLY_GREEN "Òåñò %d ïðîéäåí" RESET "\n", num);
         (*passed)++;
         (*total)++;
@@ -63,12 +86,6 @@ int RunOneTest(struct TestCase test, int num, int* passed, int* total) {
             (*total)++;
             return FALSE;
     }
-
-}
-
-void what_test_failed(int num) {
-
-    printf(RED "\nTEST %d FAILED\n(information higher)" RESET "\n\n", num);
 
 }
 
@@ -94,9 +111,13 @@ int RunTests() {
     TestCase arr[MAX_TESTS] = {};
     int num_test = 0;
     char line[BUFF];
+    int line_counter = 0;
+    int flag = 1, skip_lines = 0;
+    int lines_skipped[MAX_TESTS] = {};
 
     while (fgets(line, sizeof(line), fp) && num_test < MAX_TESTS) {
 
+        line_counter++;
         double a = 0, b = 0, c = 0;
         int nrootsRef = 0;
         char x1_str[BUFF_NUM] = {}, x2_str[BUFF_NUM] = {};
@@ -105,10 +126,15 @@ int RunTests() {
 
         //printf("%s %d %c\n", x1_str, strlen(x1_str), x1_str[3]);
         //printf("%s\n\n", x2_str);
-        if (n != 6) {
-            printf("Íåêîððåêòíàÿ ñòðîêà(áûëà ïðîïóùåíà): %s\n", line);
+        if (n != 6 || !is_str_number(x1_str) || !is_str_number(x2_str)) {
+            printf(ORANGE "Íåêîððåêòíàÿ ñòðîêà, íîìåð %d: %s(áûëà ïðîïóùåíà)" RESET "\n", line_counter, line);
+            lines_skipped[skip_lines] = line_counter;
+            // printf("%d", lines_skipped[skip_lines]);
+            num_test++;
+            skip_lines++;
             continue;
         }
+
         arr[num_test].a = a;
         arr[num_test].b = b;
         arr[num_test].c = c;
@@ -123,19 +149,43 @@ int RunTests() {
         else
             arr[num_test].x2ref = atof(x2_str);
 
-        printf("%lf\n", arr[num_test].x1ref);
-        printf("%lf\n\n", arr[num_test].x2ref);
+        //printf("%lf\n", arr[num_test].x1ref);
+        //printf("%lf\n\n", arr[num_test].x2ref);
         num_test++;
     }
     fclose(fp);
 
-    int passed = 0, total = 0, flag = 1;
-    printf("\n" "\033[38;2;220;80;0;47m" "    ÒÅÑÒÛ     " RESET);
+    /* while (fgets(line, sizeof(line), fp) && num_test < MAX_TESTS) {
 
-    // const int size = sizeof(arr)/sizeof(arr[0]);
-    int tests_failed[num_test+1];
-    for (int k = 0; k < num_test + 1; k++)
-        tests_failed[k] = 0;
+        double a = 0, b = 0, c = 0, x1ref = 0, x2ref = 0;
+        int nrootsRef = 0;
+
+        int n = sscanf(line, "%lf %lf %lf %d %lf %lf", &a, &b, &c, &nrootsRef, &x1ref, &x2ref);
+
+        printf("%lf\n", x1ref);
+        printf("%lf\n\n", x2ref);
+        if (n != 6) {
+            flag = 0;
+            printf("Íåêîððåêòíàÿ ñòðîêà(áûëà ïðîïóùåíà): %s\n", line);
+            continue;
+        }
+        arr[num_test].a = a;
+        arr[num_test].b = b;
+        arr[num_test].c = c;
+        arr[num_test].nrootsRef = nrootsRef;
+        arr[num_test].x1ref = x1ref;
+        arr[num_test].x2ref = x2ref;
+
+        printf("%lf\n", arr[num_test].x1ref);
+        printf("%lf\n\n", arr[num_test].x2ref);
+        num_test++;
+    }
+    fclose(fp); */
+
+
+    int passed = 0, total = 0;
+    printf("\n" "\033[38;2;220;80;0;47m" "    ÒÅÑÒÛ     " RESET);
+    int tests_failed[MAX_TESTS] = {};
 
     for (int i = 0; i < num_test; i++) {
         if (!RunOneTest(arr[i], i+1, &passed, &total)) {
@@ -145,7 +195,7 @@ int RunTests() {
         print_struct(arr[i]);
     }
 
-    if (flag == 0) {
+    if (!flag && !skip_lines) {
         printf(BLACK "\nNOT ALL TESTS PASSED:" RESET "\n");
 
         for (int i = 0; i < num_test; i++) {
@@ -154,8 +204,35 @@ int RunTests() {
         }
         return FALSE;
     }
+
+
+    else if (flag && skip_lines) {
+        printf(BLACK "\nNOT ALL TESTS PASSED due to incorrect lines in file" RESET "\n");
+
+        for (int i = 0; i < num_test; i++) {
+            if (lines_skipped[i] != 0)
+                what_line_skipped(lines_skipped[i]);
+        }
+        return TRUE;
+    }
+
+
+    else if (!flag && skip_lines) {
+        printf(BLACK "\nNOT ALL TESTS PASSED and there were incorrect lines in file" RESET "\n");
+
+        for (int i = 0; i < num_test; i++) {
+            if (lines_skipped[i] != 0)
+                what_line_skipped(lines_skipped[i]);
+
+            if (tests_failed[i] != 0)
+                what_test_failed(tests_failed[i]);
+        }
+        return FALSE;
+
+
+    }
     else {
-        printf("\n" GREEN "ÂÑÅ ÒÅÑÒÛ ÏÐÎÉÄÅÍÛ" RESET "\n");
+        printf("\n" GREEN "ÂÑÅ ÒÅÑÒÛ ÏÐÎÉÄÅÍÛ (ÂÑÅ ÑÒÐÎÊÈ ÁÛËÈ Ñ×ÈÒÀÍÛ)" RESET "\n");
         return TRUE;
     }
 

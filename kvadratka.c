@@ -76,20 +76,19 @@ int input(struct KvEq *pt) {
     int sign = 1;
     int i = 0;
     int flag_a  = 0, flag_b = 0, flag_c = 0;
-    //printf("%lg", pt->a);
+    // printf("%s\n", clean);
 
     while (clean[i]) {
 
         if (clean[i] == '+' || clean[i] == '-') {
             sign = (clean[i] == '+') ? 1 : -1;
             i++;
-            // continue;
+            continue;
         }
         int start_num = i;
 
         while (clean[i] && clean[i] != '+' && clean[i] != '-')
             i++;
-
         char str_num[BUFF_NUM];
         strncpy(str_num, clean + start_num, i - start_num);
         str_num[i - start_num] = '\0';
@@ -120,10 +119,7 @@ int input(struct KvEq *pt) {
 
             if (strlen(num) == 0)
                pt->b = 1.0*sign;
-            /* else if (strcmp(num, "-") == 0)
-                pt->b = -1.0;
-            else if (strcmp(num, "+") == 0)
-                pt->b = 1.0; */
+
             else
                 pt->b = atof(num)*sign;
         }
