@@ -63,8 +63,18 @@ int input(struct KvEq *pt) {
 
             assert(i < size);
 
-            if (!isdigit(str[i]) && (str[i] != '^') && (str[i] != '+') && (str[i] != '-') &&
+            /* if (!isdigit(str[i]) && (str[i] != '^') && (str[i] != '+') && (str[i] != '-') &&
             (str[i] != '=') && (!isspace(str[i])) && (str[i] != 'x') && (str[i] != '.')) {
+
+                    printf(RED "Ошибка ввода уравнения, попробуйте еще раз" RESET "\n");
+                    flag = 0;
+                    break;
+                } */
+            if ((!isdigit(str[i]) && (str[i] != '^') && (str[i] != '+') && (str[i] != '-') &&
+            (str[i] != '=') && (!isspace(str[i])) && (str[i] != 'x') && (str[i] != '.')) ||
+            (str[i] == '^' && str[i + 1] != '2') ||
+            (str[i] == '^' && str[i+1] == '2' && isdigit(str[i+2])) || ((str[i] == '-' || str[i] == '+') && (str[i + 1] == '-' || str[i + 1] == '+')) ||
+            ((str[i] == 'x') && isdigit(str[i + 1]))) {
 
                     printf(RED "Ошибка ввода уравнения, попробуйте еще раз" RESET "\n");
                     flag = 0;
