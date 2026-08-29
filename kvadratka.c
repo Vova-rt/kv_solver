@@ -41,10 +41,11 @@ int input(struct KvEq *pt) {
 
     assert(pt != NULL);
 
-    printf(PURPLE "Ââåäèòå óðàâíåíèå âèäà ax^2 + bx + c = 0" RESET "\n");
-    char str[BUFF];
-    char clean[BUFF+1];
     while (TRUE) {
+
+        printf(PURPLE "Ââåäèòå óðàâíåíèå âèäà ax^2 + bx + c = 0" RESET "\n");
+        char str[BUFF];
+        char clean[BUFF+1];
 
         fgets(str, sizeof(str), stdin);
         if (str[strlen(str) - 1] != '\n') {
@@ -78,74 +79,83 @@ int input(struct KvEq *pt) {
             continue;
 
         clean[j] = '\0';
-        break;
-    }
+        // break;
     int sign = 1;
     int i = 0;
     // int flag_a  = 0, flag_b = 0, flag_c = 0;
     // printf("%s\n", clean);
     pt->a = 0, pt->b = 0, pt->c = 0;
-    while (clean[i]) {
+        while (clean[i]) {
 
-        if (clean[i] == '+' || clean[i] == '-') {
-            sign = (clean[i] == '+') ? 1 : -1;
-            i++;
+            if (clean[i] == '+' || clean[i] == '-') {
+                sign = (clean[i] == '+') ? 1 : -1;
+                i++;
+                continue;
+            }
+            int start_num = i;
+
+            while (clean[i] && clean[i] != '+' && clean[i] != '-')
+                i++;
+            char str_num[BUFF_NUM];
+            unsigned int len_str_num = i - start_num;
+            if (len_str_num >= sizeof(str_num)) {
+                printf(ORANGE "ÑËÈØÊÎÌ ÄËÈÍÍÛÉ ÊÎÝÔÔÈÖÈÅÍÒ, ÏÎÏÐÎÁÓÉÒÅ ÅÙÅ ÐÀÇ" RESET "\n");
+                flag = 0;
+                break;
+            }
+            strncpy(str_num, clean + start_num, i - start_num);
+            str_num[i - start_num] = '\0';
+            // printf("%lg\n", pt->a);
+
+            if (strstr(str_num, "x^2")) {
+                //flag_a = 1;
+                char* pt1 = strstr(str_num, "x^2");
+                char num[BUFF_NUM];
+                int len = pt1 - str_num;
+                strncpy(num, str_num, len);
+                num[len] = '\0';
+
+                if (strlen(num) == 0)
+                    pt->a = 1.0 * sign;
+
+                else
+                    pt->a = atof(num)*sign;
+            }
+            else if (strstr(str_num, "x")) {
+
+                // flag_b = 1;
+                char* pt1 = strstr(str_num, "x");
+                char num[BUFF_NUM];
+                int len = pt1 - str_num;
+                strncpy(num, str_num, len);
+                num[len] = '\0';
+
+                if (strlen(num) == 0)
+                pt->b = 1.0*sign;
+
+                else
+                    pt->b = atof(num)*sign;
+            }
+            else {
+                // flag_c = 1;
+                pt->c = atof(str_num)*sign;
+            }
+            /* if (flag_a == 0)
+                //printf("%lg", pt->a);
+                pt->a = 0;
+            if (flag_b ==0)
+                pt->b = 0;
+            if (flag_c == 0)
+                pt->c = 0; */
+        }
+        if (flag == 0)
             continue;
-        }
-        int start_num = i;
 
-        while (clean[i] && clean[i] != '+' && clean[i] != '-')
-            i++;
-        char str_num[BUFF_NUM];
-        strncpy(str_num, clean + start_num, i - start_num);
-        str_num[i - start_num] = '\0';
-        // printf("%lg\n", pt->a);
-
-        if (strstr(str_num, "x^2")) {
-            //flag_a = 1;
-            char* pt1 = strstr(str_num, "x^2");
-            char num[BUFF_NUM];
-            int len = pt1 - str_num;
-            strncpy(num, str_num, len);
-            num[len] = '\0';
-
-            if (strlen(num) == 0)
-                pt->a = 1.0 * sign;
-
-            else
-                pt->a = atof(num)*sign;
-        }
-        else if (strstr(str_num, "x")) {
-
-            // flag_b = 1;
-            char* pt1 = strstr(str_num, "x");
-            char num[BUFF_NUM];
-            int len = pt1 - str_num;
-            strncpy(num, str_num, len);
-            num[len] = '\0';
-
-            if (strlen(num) == 0)
-               pt->b = 1.0*sign;
-
-            else
-                pt->b = atof(num)*sign;
-        }
-        else {
-            // flag_c = 1;
-            pt->c = atof(str_num)*sign;
-        }
-        /* if (flag_a == 0)
-            //printf("%lg", pt->a);
-            pt->a = 0;
-        if (flag_b ==0)
-            pt->b = 0;
-        if (flag_c == 0)
-            pt->c = 0; */
+        printf(YELLOW "a = %lg ", pt->a);
+        printf("b = %lg ", pt->b);
+        printf("c = %lg" RESET "\n", pt->c);
+        return TRUE;
     }
-    printf(YELLOW "a = %lg ", pt->a);
-    printf("b = %lg ", pt->b);
-    printf("c = %lg" RESET "\n", pt->c);
-    return TRUE;
 
 }
 
