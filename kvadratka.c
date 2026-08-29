@@ -49,7 +49,7 @@ int input(struct KvEq *pt) {
 
         fgets(str, sizeof(str), stdin);
         if (str[strlen(str) - 1] != '\n') {
-            printf(ORANGE "Слишком длинная строка, введите еще раз" RESET "\n");
+            printf(ORANGE "СЛИШКОМ ДЛИННАЯ СТРОКА, ПОПРОБУЙТЕ ЕЩЕ РАЗ" RESET "\n");
             clear_buffer();
             continue;
 
@@ -97,6 +97,7 @@ int input(struct KvEq *pt) {
             while (clean[i] && clean[i] != '+' && clean[i] != '-')
                 i++;
             char str_num[BUFF_NUM];
+
             unsigned int len_str_num = i - start_num;
             if (len_str_num >= sizeof(str_num)) {
                 printf(ORANGE "СЛИШКОМ ДЛИННЫЙ КОЭФФИЦИЕНТ, ПОПРОБУЙТЕ ЕЩЕ РАЗ" RESET "\n");

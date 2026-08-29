@@ -11,7 +11,7 @@
 
 #define TRUE 1
 #define FALSE 0
-#define E 0.000001
+#define E 0.0000000001
 #define TESTS 1000
 #define BUFF 100
 #define BUFF_NUM 30
@@ -60,7 +60,7 @@ int equal(double, double); // проверяет равны ли х1 и х2
 int is_str_number(char*); // проверяет правильно ли представлено число в строковом виде
 int RunOneTest(struct TestCase, int, int*); // ручные тесты
 int RunTests(); // запуск тестов
-void RandomTests(); // рандом тесты
+void RandomTests(); // тесты cо случайными коэффициентами
 void print_struct(struct TestCase); // печать содержимого структуры(для тестов)
 void what_test_failed(int); // номер теста, который провалился
 void what_line_skipped(int); // номер строки файла с тестами, которая не была корректно считана

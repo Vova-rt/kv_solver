@@ -22,13 +22,14 @@ int is_str_number(char *str) {
 }
 void print_struct(struct TestCase test) {
 
-    printf("%lg, %lg, %lg, %d, %lg, %lg\n\n", test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref);
+    printf(YELLOW "ДАННЫЕ ТЕСТА %d:" RESET "\n" "%lg, %lg, %lg, %d, %lg, %lg\n\n", test.line_number, test.a, test.b, test.c,
+                                                                                    test.nrootsRef, test.x1ref, test.x2ref);
 
 }
 
 void what_test_failed(int num) {
 
-    printf(RED "\nTEST %d FAILED\n(information higher)" RESET "\n\n", num);
+    printf(RED "\nTEST %d FAILED\n" RESET YELLOW "(information higher)" RESET "\n\n", num);
 
 }
 
@@ -77,7 +78,7 @@ int RunOneTest(struct TestCase test, int num, int* passed) {
     }
 
     else {
-            printf(RED "\n\nТест %d FAILED\na = %lg, b = %lg, c = %lg\n"
+            printf(RED "\n\nТест %d FAILED:\na = %lg, b = %lg, c = %lg\n"
             "Expected: %d roots, x1ref = %lg, x2ref = %lg\n"
             "got:      %d roots, x1    = %lg, x2    = %lg" RESET "\n",
             num, test.a, test.b, test.c, test.nrootsRef, test.x1ref, test.x2ref, nroots, x1, x2);
@@ -99,7 +100,7 @@ int RunTests() {
                                {.a = 25, .b = 5, .c = 2, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
                                {.a = 0, .b = 5, .c = 1, .nrootsRef = 1, .x1ref = -0.2, .x2ref = NAN}
     };*/
-    printf("\n" "\033[38;2;220;80;0;47m" "    ТЕСТЫ     " RESET);
+    printf("\n              " "\033[38;2;220;80;0;47m" "    ТЕСТЫ     " RESET);
     printf("\n" YELLOW "(номер теста - номер строки в файле тестов)\n\n" RESET);
     FILE *fp = fopen("hand_tests.txt", "r");
     if(!fp) {
@@ -126,7 +127,8 @@ int RunTests() {
         //printf("%s %d %c\n", x1_str, strlen(x1_str), x1_str[3]);
         //printf("%s\n\n", x2_str);
         if (n != 6 || !is_str_number(x1_str) || !is_str_number(x2_str)) {
-            printf(ORANGE "Некорректная строка, номер %d:   " RESET RED "%s" RESET ORANGE "(была пропущена)\n" RESET "\n", line_counter, line);
+            printf(ORANGE "Некорректная строка, номер %d:   " RESET RED "%s" RESET ORANGE "(была пропущена)\n" RESET
+            "\n", line_counter, line);
             lines_skipped[skip_lines] = line_counter;
             // printf("%d", lines_skipped[skip_lines]);
             skip_lines++;
@@ -143,6 +145,7 @@ int RunTests() {
             arr[num_test].x1ref = NAN;
         else
             arr[num_test].x1ref = atof(x1_str);
+
         if ((strstr(x2_str, "nan") != NULL) || (strstr(x2_str, "NAN")) != NULL)
             arr[num_test].x2ref = NAN;
         else
@@ -195,7 +198,7 @@ int RunTests() {
         print_struct(arr[i]);
     }
 
-    printf(ORANGE "ПРОЙДЕНО %d ИЗ %d РУЧНЫХ ТЕСТОВ" RESET "\n", passed, line_counter);
+    printf(ORANGE "ПРОЙДЕНО %d ИЗ %d РУЧНЫХ ТЕСТОВ ИЗ ФАЙЛА" RESET "\n", passed, line_counter);
 
     if (!flag && !skip_lines) {
         printf(BLACK "\nNOT ALL TESTS PASSED:" RESET "\n");
@@ -219,8 +222,8 @@ int RunTests() {
     }
 
 
-    /*else if (!flag && skip_lines) {
-        printf(BLACK "\nNOT ALL TESTS PASSED and there were incorrect lines in file" RESET "\n");
+    else if (!flag && skip_lines) {
+        printf(BLACK "\nNOT ALL TESTS PASSED and there were incorrect lines in test file" RESET "\n");
 
         for (int i = 0; i < num_test; i++) {
             if (lines_skipped[i] != 0)
@@ -230,7 +233,7 @@ int RunTests() {
                 what_test_failed(tests_failed[i]);
         }
         return FALSE;
-    } */
+    }
     else {
         printf("\n" GREEN "ВСЕ ТЕСТЫ ПРОЙДЕНЫ (ВСЕ СТРОКИ ТЕСТОВ ИЗ ФАЙЛА БЫЛИ СЧИТАНЫ)" RESET "\n");
         return TRUE;
