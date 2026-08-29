@@ -20,6 +20,7 @@ int is_str_number(char *str) {
 
     return FALSE;
 }
+
 void print_struct(struct TestCase test) {
 
     printf(YELLOW "ДАННЫЕ ТЕСТА %d:" RESET "\n" "%lg, %lg, %lg, %d, %lg, %lg\n\n", test.line_number, test.a, test.b, test.c,
@@ -87,19 +88,8 @@ int RunOneTest(struct TestCase test, int num, int* passed) {
 
 }
 
-int RunTests() {
+int RunTests() { // make function smaller + print failed random tests
 
-    /*struct TestCase arr[] = {  {.a = 1, .b = -3, .c = 2, .nrootsRef = 2, .x1ref = 2, .x2ref = 1},
-                               {.a = 0, .b = 0, .c = 1, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
-                               {.a = 0, .b = 0, .c = 2, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
-                               {.a = 0, .b = 1, .c = 1, .nrootsRef = 1, .x1ref = -1, .x2ref = NAN},
-                               {.a = 0, .b = 0, .c = 0, .nrootsRef = -1, .x1ref = NAN, .x2ref = NAN},
-                               {.a = 1, .b = 2, .c = 1, .nrootsRef = 1, .x1ref = -1, .x2ref = NAN},
-                               {.a = 1, .b = 2, .c = 3, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
-                               {.a = 1, .b = 4, .c = 4, .nrootsRef = 1, .x1ref = -2, .x2ref = NAN},
-                               {.a = 25, .b = 5, .c = 2, .nrootsRef = 0, .x1ref = NAN, .x2ref = NAN},
-                               {.a = 0, .b = 5, .c = 1, .nrootsRef = 1, .x1ref = -0.2, .x2ref = NAN}
-    };*/
     printf("\n              " "\033[38;2;220;80;0;47m" "    ТЕСТЫ     " RESET);
     printf("\n" YELLOW "(номер теста - номер строки в файле тестов)\n\n" RESET);
     FILE *fp = fopen("hand_tests.txt", "r");
@@ -156,35 +146,6 @@ int RunTests() {
         num_test++;
     }
     fclose(fp);
-
-    /* while (fgets(line, sizeof(line), fp) && num_test < MAX_TESTS) {
-
-        double a = 0, b = 0, c = 0, x1ref = 0, x2ref = 0;
-        int nrootsRef = 0;
-
-        int n = sscanf(line, "%lf %lf %lf %d %lf %lf", &a, &b, &c, &nrootsRef, &x1ref, &x2ref);
-
-        printf("%lf\n", x1ref);
-        printf("%lf\n\n", x2ref);
-        if (n != 6) {
-            flag = 0;
-            printf("Некорректная строка(была пропущена): %s\n", line);
-            continue;
-        }
-        arr[num_test].a = a;
-        arr[num_test].b = b;
-        arr[num_test].c = c;
-        arr[num_test].nrootsRef = nrootsRef;
-        arr[num_test].x1ref = x1ref;
-        arr[num_test].x2ref = x2ref;
-
-        printf("%lf\n", arr[num_test].x1ref);
-        printf("%lf\n\n", arr[num_test].x2ref);
-        num_test++;
-    }
-    fclose(fp); */
-
-
     int passed = 0;
     int tests_failed[MAX_TESTS] = {};
 
@@ -210,7 +171,6 @@ int RunTests() {
         return FALSE;
     }
 
-
     else if (flag && skip_lines) {
         printf(BLACK "\nNOT ALL TESTS PASSED due to incorrect lines in file" RESET "\n");
 
@@ -220,7 +180,6 @@ int RunTests() {
         }
         return TRUE;
     }
-
 
     else if (!flag && skip_lines) {
         printf(BLACK "\nNOT ALL TESTS PASSED and there were incorrect lines in test file" RESET "\n");
@@ -238,7 +197,6 @@ int RunTests() {
         printf("\n" GREEN "ВСЕ ТЕСТЫ ПРОЙДЕНЫ (ВСЕ СТРОКИ ТЕСТОВ ИЗ ФАЙЛА БЫЛИ СЧИТАНЫ)" RESET "\n");
         return TRUE;
     }
-
 }
 
 
@@ -248,6 +206,7 @@ void RandomTests() {
     int passed = 0;
 
     for (int i = 0; i < TESTS; i++) {
+
             struct KvEq random;
             random.a = rand() % 20000 - 10000;
             random.b = rand() % 20000 - 10000;
@@ -258,15 +217,23 @@ void RandomTests() {
             int flag = 1;
 
              if (random.nroots == 1 || random.nroots == 2) {
-                if(!is_root(&random, random.x1))
+                if(!is_root(&random, random.x1)) {
+                    printf("*\n");
                     flag = 0;
+                }
                 if (random.nroots == 2 && !is_root(&random, random.x2))
                     flag = 0;
             }
+            total++;
+
             if (flag)
                 passed++;
 
-            total++;
+            else {
+                printf(RED "\n\nТест %d FAILED:\na = %lg, b = %lg, c = %lg\n"
+                "got:      %d roots, x1    = %lg, x2    = %lg" RESET "\n",
+                total, random.a, random.b, random.c, random.nroots, random.x1, random.x2);
+            }
 
     }
     printf(ORANGE "\n      РАНДОМ ТЕСТЫ" RESET "\n");

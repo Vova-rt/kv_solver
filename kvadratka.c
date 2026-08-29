@@ -25,16 +25,16 @@ int exit_before_start() {
         clear_buffer();
         return TRUE;
     }
+
     while (isspace(ch = getchar())) {
         if (ch == '\n') {
             printf(BLACK "Программа завершена" RESET);
             return FALSE;
         }
     }
-    // printf("s");
+
     clear_buffer();
     return TRUE;
-
 }
 
 int input(struct KvEq *pt) {
@@ -82,7 +82,6 @@ int input(struct KvEq *pt) {
         // break;
     int sign = 1;
     int i = 0;
-    // int flag_a  = 0, flag_b = 0, flag_c = 0;
     // printf("%s\n", clean);
     pt->a = 0, pt->b = 0, pt->c = 0;
         while (clean[i]) {
@@ -109,7 +108,6 @@ int input(struct KvEq *pt) {
             // printf("%lg\n", pt->a);
 
             if (strstr(str_num, "x^2")) {
-                //flag_a = 1;
                 char* pt1 = strstr(str_num, "x^2");
                 char num[BUFF_NUM];
                 int len = pt1 - str_num;
@@ -124,7 +122,6 @@ int input(struct KvEq *pt) {
             }
             else if (strstr(str_num, "x")) {
 
-                // flag_b = 1;
                 char* pt1 = strstr(str_num, "x");
                 char num[BUFF_NUM];
                 int len = pt1 - str_num;
@@ -138,16 +135,9 @@ int input(struct KvEq *pt) {
                     pt->b = atof(num)*sign;
             }
             else {
-                // flag_c = 1;
                 pt->c = atof(str_num)*sign;
             }
-            /* if (flag_a == 0)
-                //printf("%lg", pt->a);
-                pt->a = 0;
-            if (flag_b ==0)
-                pt->b = 0;
-            if (flag_c == 0)
-                pt->c = 0; */
+
         }
         if (flag == 0)
             continue;
@@ -157,7 +147,6 @@ int input(struct KvEq *pt) {
         printf("c = %lg" RESET "\n", pt->c);
         return TRUE;
     }
-
 }
 
 
@@ -203,7 +192,6 @@ void discriminant(struct KvEq *pt) {
     assert(pt != NULL);
 
     pt->D = pt->b*pt->b - 4*pt->a*pt->c;
-
 }
 
 void solve_eq(struct KvEq *pt) {
@@ -255,30 +243,30 @@ void solve_eq(struct KvEq *pt) {
             pt->nroots = 2;
         }
     }
-
 }
 
 void output(const struct KvEq *pt) {
 
     assert(pt != NULL);
-        switch(pt->nroots) {
-            case -1:
-                printf(ORANGE "Бесконечно много корней" RESET "\n");
-                break;
-            case 0:
-                printf(ORANGE "Действительных корней нет" RESET "\n");
-                break;
-            case 1:
-                printf(ORANGE "Один корень:   x = %lg" RESET "\n", pt->x1);
-                break;
-            case 2:
-                printf(ORANGE "Два корня:  x1 = %lg, x2 = %lg" RESET "\n", pt->x1, pt->x2);
-                break;
-            default:
-                printf(RED "Ошибка числ корней" RESET "\n");
-        }
 
+    switch(pt->nroots) {
+        case -1:
+            printf(ORANGE "Бесконечно много корней" RESET "\n");
+            break;
+        case 0:
+            printf(ORANGE "Действительных корней нет" RESET "\n");
+            break;
+        case 1:
+            printf(ORANGE "Один корень:   x = %lg" RESET "\n", pt->x1);
+            break;
+        case 2:
+            printf(ORANGE "Два корня:  x1 = %lg, x2 = %lg" RESET "\n", pt->x1, pt->x2);
+            break;
+        default:
+            printf(RED "Ошибка числ корней" RESET "\n");
+    }
 }
+
 int continuE(void) {
 
     printf(PURPLE "Хотите продолжить?\n"
@@ -333,7 +321,6 @@ int continuE(void) {
             printf(RED "Ошибка ввода, введите 0 или 1\n" RESET "\n");
             continue;
     }
-
 }
 
 bool is_zero(double s1) {
@@ -343,20 +330,18 @@ bool is_zero(double s1) {
 
     else
         return false;
-
 }
 
 void clear_buffer(void) {
 
     while (getchar() != '\n')
         ;
-
 }
 
 int is_root(const struct KvEq *pt, double x) {
 
     assert(pt != NULL);
+
     double result = pt->a*x*x + pt->b*x + pt->c;
     return (is_zero(result)) ? 1 : 0;
-
 }
