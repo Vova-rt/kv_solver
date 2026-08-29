@@ -43,10 +43,17 @@ int input(struct KvEq *pt) {
 
     printf(PURPLE "Введите уравнение вида ax^2 + bx + c = 0" RESET "\n");
     char str[BUFF];
-    char clean[BUFF];
+    char clean[BUFF+1];
     while (TRUE) {
 
         fgets(str, sizeof(str), stdin);
+        if (str[strlen(str) - 1] != '\n') {
+            printf(ORANGE "Слишком длинная строка, введите еще раз" RESET "\n");
+            clear_buffer();
+            continue;
+
+        }
+
         unsigned int size = sizeof(str);
         int j = 0;
         int flag = 1;
@@ -75,9 +82,9 @@ int input(struct KvEq *pt) {
     }
     int sign = 1;
     int i = 0;
-    int flag_a  = 0, flag_b = 0, flag_c = 0;
+    // int flag_a  = 0, flag_b = 0, flag_c = 0;
     // printf("%s\n", clean);
-
+    pt->a = 0, pt->b = 0, pt->c = 0;
     while (clean[i]) {
 
         if (clean[i] == '+' || clean[i] == '-') {
@@ -95,7 +102,7 @@ int input(struct KvEq *pt) {
         // printf("%lg\n", pt->a);
 
         if (strstr(str_num, "x^2")) {
-            flag_a = 1;
+            //flag_a = 1;
             char* pt1 = strstr(str_num, "x^2");
             char num[BUFF_NUM];
             int len = pt1 - str_num;
@@ -110,7 +117,7 @@ int input(struct KvEq *pt) {
         }
         else if (strstr(str_num, "x")) {
 
-            flag_b = 1;
+            // flag_b = 1;
             char* pt1 = strstr(str_num, "x");
             char num[BUFF_NUM];
             int len = pt1 - str_num;
@@ -124,16 +131,16 @@ int input(struct KvEq *pt) {
                 pt->b = atof(num)*sign;
         }
         else {
-            flag_c = 1;
+            // flag_c = 1;
             pt->c = atof(str_num)*sign;
         }
-        if (flag_a == 0)
+        /* if (flag_a == 0)
             //printf("%lg", pt->a);
             pt->a = 0;
         if (flag_b ==0)
             pt->b = 0;
         if (flag_c == 0)
-            pt->c = 0;
+            pt->c = 0; */
     }
     printf(YELLOW "a = %lg ", pt->a);
     printf("b = %lg ", pt->b);
