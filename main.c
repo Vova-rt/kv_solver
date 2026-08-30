@@ -15,6 +15,7 @@ int main(void)
     do {
         input(&main_kv);
         solve_eq(&main_kv);
+        paint_func(main_kv);
         output(&main_kv);
     } while (continuE() == TRUE);
 
@@ -22,3 +23,4 @@ int main(void)
 }
 #include "kvadratka.c"
 #include "tests.c"
+#include "paint.c"

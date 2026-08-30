@@ -43,7 +43,7 @@ int input(struct KvEq *pt) {
 
     while (TRUE) {
 
-        printf(PURPLE "¬ведите уравнение вида ax^2 + bx + c = 0" RESET "\n");
+        printf(PURPLE "¬ведите многочлен максимум 2 степени" RESET "\n");
         char str[BUFF];
         char clean[BUFF+1];
 
@@ -63,13 +63,6 @@ int input(struct KvEq *pt) {
 
             assert(i < size);
 
-            /* if (!isdigit(str[i]) && (str[i] != '^') && (str[i] != '+') && (str[i] != '-') &&
-            (str[i] != '=') && (!isspace(str[i])) && (str[i] != 'x') && (str[i] != '.')) {
-
-                    printf(RED "ќшибка ввода уравнени€, попробуйте еще раз" RESET "\n");
-                    flag = 0;
-                    break;
-                } */
             if ((!isdigit(str[i]) && (str[i] != '^') && (str[i] != '+') && (str[i] != '-') &&
             (str[i] != '=') && (!isspace(str[i])) && (str[i] != 'x') && (str[i] != '.')) ||
             (str[i] == '^' && str[i + 1] != '2') ||
@@ -125,10 +118,10 @@ int input(struct KvEq *pt) {
                 num[len] = '\0';
 
                 if (strlen(num) == 0)
-                    pt->a = 1.0 * sign;
+                    pt->a += 1.0 * sign;
 
                 else
-                    pt->a = atof(num)*sign;
+                    pt->a += atof(num)*sign;
             }
             else if (strstr(str_num, "x")) {
 
@@ -139,13 +132,13 @@ int input(struct KvEq *pt) {
                 num[len] = '\0';
 
                 if (strlen(num) == 0)
-                pt->b = 1.0*sign;
+                pt->b += 1.0*sign;
 
                 else
-                    pt->b = atof(num)*sign;
+                    pt->b += atof(num)*sign;
             }
             else {
-                pt->c = atof(str_num)*sign;
+                pt->c += atof(str_num)*sign;
             }
 
         }

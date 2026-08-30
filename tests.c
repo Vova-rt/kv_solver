@@ -145,6 +145,7 @@ int RunTests() { // make function smaller + print failed random tests
         //printf("%lf\n\n", arr[num_test].x2ref);
         num_test++;
     }
+
     fclose(fp);
     int passed = 0;
     int tests_failed[MAX_TESTS] = {};

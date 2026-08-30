@@ -15,6 +15,8 @@
 #define BUFF 100
 #define BUFF_NUM 30
 #define MAX_TESTS 10
+#define WIDTH 60
+#define HEIGHT 20
 
 
 #define RED "\033[0;31m" // красный текст
@@ -51,6 +53,7 @@ int input(struct KvEq *); //обработка ввода(вида ax^2 + bx + c)
 void discriminant(struct KvEq *); // вычисление дискриминанта
 void solve_eq(struct KvEq *); // счет корней
 void output(const struct KvEq *); // вывод корней
+void paint_func(struct KvEq); // рисует в терминале график функции
 int continuE(void); //хочет ли пользователь продолжить
 bool is_zero(double); //является ли число нулем
 void clear_buffer(void); //очистка мусорной части ввода
